@@ -1,22 +1,28 @@
 import React from 'react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Settings, Wifi, WifiOff } from 'lucide-react';
+import { Settings, Wifi, WifiOff, Menu } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useTradingStore } from '../../store/useTradingStore';
 
 interface TopBarProps {
   isConnected: boolean;
   onReconnect: () => void;
+  onToggleSidebar?: () => void;
 }
 
-export const TopBar: React.FC<TopBarProps> = ({ isConnected, onReconnect }) => {
+export const TopBar: React.FC<TopBarProps> = ({ isConnected, onReconnect, onToggleSidebar }) => {
   const { setSettingsOpen } = useSettingsStore();
   const { selectedSymbol, selectedTimeframe, currentSignal } = useTradingStore();
 
   return (
     <div className="h-16 bg-card border-b border-border flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
+        {onToggleSidebar && (
+          <Button variant="ghost" size="sm" onClick={onToggleSidebar}>
+            <Menu className="w-4 h-4" />
+          </Button>
+        )}
         <h1 className="text-xl font-bold">Nifty Options</h1>
         <div className="flex items-center gap-2">
           <Badge variant="outline">{selectedSymbol}</Badge>
