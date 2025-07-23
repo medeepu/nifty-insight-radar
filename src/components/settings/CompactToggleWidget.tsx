@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 
 interface ToggleItem {
   id: string;
@@ -9,6 +10,10 @@ interface ToggleItem {
   description?: string;
   checked: boolean;
   onChange: (checked: boolean) => void;
+  color?: string;
+  onColorChange?: (color: string) => void;
+  lineStyle?: string;
+  onLineStyleChange?: (style: string) => void;
 }
 
 interface CompactToggleWidgetProps {
@@ -35,23 +40,60 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
           {items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center justify-between p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
+              className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
             >
-              <div className="flex-1 min-w-0">
-                <Label htmlFor={item.id} className="text-xs font-medium cursor-pointer">
-                  {item.label}
-                </Label>
-                {item.description && (
-                  <p className="text-xs text-muted-foreground mt-1 truncate">
-                    {item.description}
-                  </p>
-                )}
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex-1 min-w-0">
+                  <Label htmlFor={item.id} className="text-xs font-medium cursor-pointer">
+                    {item.label}
+                  </Label>
+                  {item.description && (
+                    <p className="text-xs text-muted-foreground mt-1 truncate">
+                      {item.description}
+                    </p>
+                  )}
+                </div>
+                <Switch
+                  id={item.id}
+                  checked={item.checked}
+                  onCheckedChange={item.onChange}
+                />
               </div>
-              <Switch
-                id={item.id}
-                checked={item.checked}
-                onCheckedChange={item.onChange}
-              />
+              
+              {/* Color and Style controls */}
+              {item.checked && (item.onColorChange || item.onLineStyleChange) && (
+                <div className="flex items-center gap-2 mt-2">
+                  {item.onColorChange && (
+                    <div className="flex items-center gap-1">
+                      <input
+                        type="color"
+                        value={item.color || '#3b82f6'}
+                        onChange={(e) => item.onColorChange!(e.target.value)}
+                        className="w-6 h-6 border border-border rounded cursor-pointer"
+                      />
+                      <span className="text-xs text-muted-foreground">Color</span>
+                    </div>
+                  )}
+                  
+                  {item.onLineStyleChange && (
+                    <div className="flex items-center gap-1">
+                      <Select value={item.lineStyle || 'solid'} onValueChange={item.onLineStyleChange}>
+                        <SelectTrigger className="w-20 h-6 text-xs">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="solid">━━━</SelectItem>
+                          <SelectItem value="dashed">⋯⋯⋯</SelectItem>
+                          <SelectItem value="dotted">•••</SelectItem>
+                          <SelectItem value="thick">━━━</SelectItem>
+                          <SelectItem value="thin">───</SelectItem>
+                        </SelectContent>
+                      </Select>
+                      <span className="text-xs text-muted-foreground">Style</span>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
           ))}
         </div>

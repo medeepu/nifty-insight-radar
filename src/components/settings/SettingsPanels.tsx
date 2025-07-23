@@ -22,7 +22,7 @@ export const SettingsPanels: React.FC = () => {
   const [activeTab, setActiveTab] = React.useState("core");
 
   // Tabs that need save buttons (form inputs)
-  const tabsWithSave = ["core", "parameters", "greeks", "risk", "broker"];
+  const tabsWithSave = ["core", "parameters", "greeks", "risk"];
   const showSaveButton = tabsWithSave.includes(activeTab);
 
   return (
@@ -33,7 +33,7 @@ export const SettingsPanels: React.FC = () => {
           <div className="container mx-auto px-6 py-6">
             
             {/* Horizontal Navigation */}
-            <TabsList className="grid w-full grid-cols-7 bg-muted/50 h-auto p-1">
+            <TabsList className="grid w-full grid-cols-6 bg-muted/50 h-auto p-1">
               <TabsTrigger 
                 value="core" 
                 className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
@@ -56,13 +56,7 @@ export const SettingsPanels: React.FC = () => {
                 value="indicators" 
                 className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
               >
-                Indicators
-              </TabsTrigger>
-              <TabsTrigger 
-                value="display" 
-                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
-              >
-                Display
+                Indicators & Display
               </TabsTrigger>
               <TabsTrigger 
                 value="risk" 
@@ -394,151 +388,6 @@ export const SettingsPanels: React.FC = () => {
         <IndicatorSettings />
       </TabsContent>
 
-      {/* Display Settings */}
-      <TabsContent value="display" className="space-y-6">
-        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-t-lg">
-            <CardTitle className="text-xl font-semibold">Dashboard Display</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium">Visible Blocks</h4>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="market-info-block">Market Info</Label>
-                  <Switch
-                    checked={settings.dashboard.blocks.marketInfo}
-                    onCheckedChange={(checked) => updateSettings('dashboard.blocks.marketInfo', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="option-params-block">Option Parameters</Label>
-                  <Switch
-                    checked={settings.dashboard.blocks.optionParams}
-                    onCheckedChange={(checked) => updateSettings('dashboard.blocks.optionParams', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="greeks-block">Greeks</Label>
-                  <Switch
-                    checked={settings.dashboard.blocks.greeks}
-                    onCheckedChange={(checked) => updateSettings('dashboard.blocks.greeks', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="price-analysis-block">Price Analysis</Label>
-                  <Switch
-                    checked={settings.dashboard.blocks.priceAnalysis}
-                    onCheckedChange={(checked) => updateSettings('dashboard.blocks.priceAnalysis', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="pro-tip-block">Pro Tip</Label>
-                  <Switch
-                    checked={settings.dashboard.blocks.proTip}
-                    onCheckedChange={(checked) => updateSettings('dashboard.blocks.proTip', checked)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium">Potential Entry</h4>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="potential-entry-toggle">Show Potential Entry</Label>
-                  <Switch
-                    checked={settings.dashboard.potentialEntryToggle}
-                    onCheckedChange={(checked) => updateSettings('dashboard.potentialEntryToggle', checked)}
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-
-        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/5 rounded-t-lg">
-            <CardTitle className="text-xl font-semibold">Chart Indicators (Legacy)</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-2 gap-6">
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium">EMA Settings</h4>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="ema-9">EMA 9</Label>
-                  <Switch
-                    checked={settings.ema.periods.ema9.enabled}
-                    onCheckedChange={(checked) => updateSettings('ema.periods.ema9.enabled', checked)}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="ema-21">EMA 21</Label>
-                  <Switch
-                    checked={settings.ema.periods.ema21.enabled}
-                    onCheckedChange={(checked) => updateSettings('ema.periods.ema21.enabled', checked)}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="ema-50">EMA 50</Label>
-                  <Switch
-                    checked={settings.ema.periods.ema50.enabled}
-                    onCheckedChange={(checked) => updateSettings('ema.periods.ema50.enabled', checked)}
-                  />
-                </div>
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="ema-200">EMA 200</Label>
-                  <Switch
-                    checked={settings.ema.periods.ema200.enabled}
-                    onCheckedChange={(checked) => updateSettings('ema.periods.ema200.enabled', checked)}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-3">
-                <h4 className="text-sm font-medium">CPR & Pivots</h4>
-                
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="cpr-enabled">Show CPR</Label>
-                  <Switch
-                    checked={settings.cprPivots.showCPR}
-                    onCheckedChange={(checked) => updateSettings('cprPivots.showCPR', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="daily-pivots">Daily Pivots</Label>
-                  <Switch
-                    checked={settings.cprPivots.showDailyPivots}
-                    onCheckedChange={(checked) => updateSettings('cprPivots.showDailyPivots', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="weekly-pivots">Weekly Pivots</Label>
-                  <Switch
-                    checked={settings.cprPivots.showWeeklyPivots}
-                    onCheckedChange={(checked) => updateSettings('cprPivots.showWeeklyPivots', checked)}
-                  />
-                </div>
-
-                <div className="flex items-center justify-between">
-                  <Label htmlFor="monthly-pivots">Monthly Pivots</Label>
-                  <Switch
-                    checked={settings.cprPivots.showMonthlyPivots}
-                    onCheckedChange={(checked) => updateSettings('cprPivots.showMonthlyPivots', checked)}
-                  />
-                </div>
-              </div>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
 
       {/* Risk Management */}
       <TabsContent value="risk" className="space-y-6">
