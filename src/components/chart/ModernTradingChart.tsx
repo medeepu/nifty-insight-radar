@@ -2,14 +2,22 @@
  * Modern Trading Chart - TradingView Style with Overlays
  */
 
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import ReactApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
+import { Settings } from 'lucide-react';
 import { Card } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { ChartControls } from './ChartControls';
 import { useTradingStore } from '@/store/useTradingStore';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { useCandles, useIndicators, useDailyLevels } from '@/hooks/useApi';
+
+interface ActiveIndicator {
+  id: string;
+  name: string;
+  visible: boolean;
+}
 
 interface ModernTradingChartProps {
   symbol: string;
@@ -24,6 +32,19 @@ export const ModernTradingChart: React.FC<ModernTradingChartProps> = ({
 }) => {
   const { currentSignal } = useTradingStore();
   const { settings } = useSettingsStore();
+  
+  const [activeIndicators, setActiveIndicators] = useState<ActiveIndicator[]>([
+    { id: 'ema21', name: 'EMA 21', visible: true },
+    { id: 'vwap', name: 'VWAP', visible: true },
+  ]);
+
+  const toggleIndicator = (id: string) => {
+    setActiveIndicators(prev => 
+      prev.map(ind => 
+        ind.id === id ? { ...ind, visible: !ind.visible } : ind
+      )
+    );
+  };
 
   // Data fetching
   const { data: candleData, isLoading } = useCandles(symbol, timeframe);
@@ -194,35 +215,40 @@ export const ModernTradingChart: React.FC<ModernTradingChartProps> = ({
   }
 
   return (
-    <div className="space-y-4">
-      <ChartControls />
-      <Card className="p-4">
-        <div className="flex items-center justify-between mb-4">
-          <div>
-            <h3 className="text-lg font-semibold text-foreground">{symbol}</h3>
-            <p className="text-sm text-muted-foreground">Timeframe: {timeframe}</p>
-          </div>
+    <Card className="p-4">
+      <div className="flex items-center justify-between mb-4">
+        <div>
+          <h3 className="text-lg font-semibold text-foreground">{symbol}</h3>
+          <p className="text-sm text-muted-foreground">Timeframe: {timeframe}</p>
+        </div>
+        <div className="flex items-center space-x-2">
           {currentSignal && (
-            <div className="flex items-center space-x-2">
-              <div className={`px-3 py-1 rounded-full text-xs font-medium ${
-                currentSignal.signal === 'BUY' 
-                  ? 'bg-bull-green/10 text-bull-green border border-bull-green/20'
-                  : currentSignal.signal === 'SELL'
-                  ? 'bg-bear-red/10 text-bear-red border border-bear-red/20'
-                  : 'bg-neutral-yellow/10 text-neutral-yellow border border-neutral-yellow/20'
-              }`}>
-                {currentSignal.signal}
-              </div>
+            <div className={`px-3 py-1 rounded-full text-xs font-medium ${
+              currentSignal.signal === 'BUY' 
+                ? 'bg-bull-green/10 text-bull-green border border-bull-green/20'
+                : currentSignal.signal === 'SELL'
+                ? 'bg-bear-red/10 text-bear-red border border-bear-red/20'
+                : 'bg-neutral-yellow/10 text-neutral-yellow border border-neutral-yellow/20'
+            }`}>
+              {currentSignal.signal}
             </div>
           )}
+          <Button variant="outline" size="sm">
+            <Settings className="w-4 h-4" />
+          </Button>
         </div>
-        
-        <ReactApexChart
-          options={chartOptions}
-          series={series}
-          height={height}
-        />
-      </Card>
-    </div>
+      </div>
+      
+      <ChartControls 
+        activeIndicators={activeIndicators}
+        onToggleIndicator={toggleIndicator}
+      />
+      
+      <ReactApexChart
+        options={chartOptions}
+        series={series}
+        height={height}
+      />
+    </Card>
   );
 };

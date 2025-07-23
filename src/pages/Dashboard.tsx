@@ -5,10 +5,12 @@
 import React from 'react';
 import { MarketOverview } from '@/components/dashboard/MarketOverview';
 import { ModernTradingChart } from '@/components/chart/ModernTradingChart';
-import { MarketInfoCard } from '@/components/dashboard/MarketInfoCard';
-import { OptionParamsCard } from '@/components/dashboard/OptionParamsCard';
-import { GreeksCard } from '@/components/dashboard/GreeksCard';
-import { PriceAnalysisCard } from '@/components/dashboard/PriceAnalysisCard';
+import { 
+  CompactMarketInfo, 
+  CompactOptionParams, 
+  CompactGreeks, 
+  CompactPriceAnalysis 
+} from '@/components/dashboard/CompactWidget';
 import { ProTipCard } from '@/components/dashboard/ProTipCard';
 import { RiskWidget } from '@/components/dashboard/RiskWidget';
 import { useTradingStore } from '@/store/useTradingStore';
@@ -34,25 +36,25 @@ const Dashboard: React.FC = () => {
         </div>
         
         {/* Side Panel Cards - Takes up 1 column */}
-        <div className="space-y-4">
+        <div className="space-y-3">
           {/* Market Info */}
           {settings.dashboard.blocks.marketInfo && (
-            <MarketInfoCard />
+            <CompactMarketInfo />
           )}
           
           {/* Option Parameters */}
           {settings.dashboard.blocks.optionParams && (
-            <OptionParamsCard />
+            <CompactOptionParams />
           )}
           
           {/* Greeks */}
           {settings.dashboard.blocks.greeks && (
-            <GreeksCard />
+            <CompactGreeks />
           )}
           
           {/* Price Analysis */}
           {settings.dashboard.blocks.priceAnalysis && (
-            <PriceAnalysisCard />
+            <CompactPriceAnalysis />
           )}
           
           {/* Pro Tip */}
