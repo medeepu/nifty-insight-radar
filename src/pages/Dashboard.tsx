@@ -25,46 +25,47 @@ const Dashboard: React.FC = () => {
       {/* Market Overview */}
       <MarketOverview />
       
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
-        {/* Chart Section - Takes up 3 columns */}
-        <div className="xl:col-span-3">
-          <ModernTradingChart
-            symbol={selectedSymbol}
-            timeframe={selectedTimeframe}
-            height={600}
-          />
-        </div>
+      {/* Second Layer Widgets */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {/* Market Info */}
+        {settings.dashboard.blocks.marketInfo && (
+          <CompactMarketInfo />
+        )}
         
-        {/* Side Panel Cards - Takes up 1 column */}
-        <div className="space-y-3">
-          {/* Market Info */}
-          {settings.dashboard.blocks.marketInfo && (
-            <CompactMarketInfo />
-          )}
-          
-          {/* Option Parameters */}
-          {settings.dashboard.blocks.optionParams && (
-            <CompactOptionParams />
-          )}
-          
-          {/* Greeks */}
-          {settings.dashboard.blocks.greeks && (
-            <CompactGreeks />
-          )}
-          
-          {/* Price Analysis */}
-          {settings.dashboard.blocks.priceAnalysis && (
-            <CompactPriceAnalysis />
-          )}
-          
-          {/* Pro Tip */}
-          {settings.dashboard.blocks.proTip && (
-            <ProTipCard />
-          )}
-          
-          {/* Risk Management Widget */}
-          <RiskWidget />
-        </div>
+        {/* Option Parameters */}
+        {settings.dashboard.blocks.optionParams && (
+          <CompactOptionParams />
+        )}
+        
+        {/* Greeks */}
+        {settings.dashboard.blocks.greeks && (
+          <CompactGreeks />
+        )}
+        
+        {/* Price Analysis */}
+        {settings.dashboard.blocks.priceAnalysis && (
+          <CompactPriceAnalysis />
+        )}
+      </div>
+      
+      {/* Chart Section - Full Width */}
+      <div className="w-full">
+        <ModernTradingChart
+          symbol={selectedSymbol}
+          timeframe={selectedTimeframe}
+          height={600}
+        />
+      </div>
+
+      {/* Additional Widgets Row */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        {/* Pro Tip */}
+        {settings.dashboard.blocks.proTip && (
+          <ProTipCard />
+        )}
+        
+        {/* Risk Management Widget */}
+        <RiskWidget />
       </div>
     </div>
   );

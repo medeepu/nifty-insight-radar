@@ -1,20 +1,19 @@
 import React from 'react';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '../ui/sheet';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { SettingsPanels } from './SettingsPanels';
 
 export const SettingsDrawer: React.FC = () => {
   const { settingsOpen, setSettingsOpen } = useSettingsStore();
 
   return (
     <Sheet open={settingsOpen} onOpenChange={setSettingsOpen}>
-      <SheetContent side="left" className="w-80 settings-panel">
+      <SheetContent side="right" className="w-[600px] max-w-[90vw] settings-panel overflow-y-auto">
         <SheetHeader>
           <SheetTitle>Trading Settings</SheetTitle>
         </SheetHeader>
         <div className="mt-6">
-          <p className="text-sm text-muted-foreground">
-            Settings panel will be implemented here with all trading configuration options.
-          </p>
+          <SettingsPanels />
         </div>
       </SheetContent>
     </Sheet>

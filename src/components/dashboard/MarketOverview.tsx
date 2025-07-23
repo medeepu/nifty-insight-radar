@@ -53,6 +53,11 @@ export const MarketOverview: React.FC = () => {
     }
   };
 
+  const addAsChart = (symbol: string) => {
+    // TODO: Add chart functionality - will be implemented with chart management
+    console.log('Adding chart for:', symbol);
+  };
+
   const replaceWidget = (index: number, newWidget: MarketData) => {
     const newWidgets = [...selectedWidgets];
     newWidgets[index] = newWidget;
@@ -70,7 +75,7 @@ export const MarketOverview: React.FC = () => {
 
       <div className="flex gap-3 overflow-x-auto pb-2">
         {selectedWidgets.map((market, index) => (
-          <Card key={`${market.symbol}-${index}`} className="p-3 min-w-48 hover:shadow-lg transition-shadow">
+          <Card key={`${market.symbol}-${index}`} className="p-3 min-w-48 hover:shadow-lg transition-shadow group">
             <div className="flex items-start justify-between mb-2">
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -91,7 +96,18 @@ export const MarketOverview: React.FC = () => {
                   ))}
                 </DropdownMenuContent>
               </DropdownMenu>
-              {getStatusBadge(market.status)}
+              <div className="flex items-center gap-2">
+                {getStatusBadge(market.status)}
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-6 w-6 p-0 opacity-0 group-hover:opacity-100 transition-opacity"
+                  onClick={() => addAsChart(market.symbol)}
+                  title="Add as chart"
+                >
+                  <Plus className="w-3 h-3" />
+                </Button>
+              </div>
             </div>
 
             <div className="space-y-1">
