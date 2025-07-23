@@ -6,7 +6,7 @@
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Badge } from '../ui/badge';
-import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
+import { BarChart3, TrendingDown, Minus } from 'lucide-react';
 import { useTradingStore } from '../../store/useTradingStore';
 import { useDailyLevels } from '../../hooks/useApi';
 
@@ -17,7 +17,7 @@ export const MarketInfoCard: React.FC = () => {
   const getTrendIcon = () => {
     if (!currentPrice?.change) return <Minus className="h-4 w-4" />;
     return currentPrice.change > 0 ? 
-      <TrendingUp className="h-4 w-4 text-bull" /> : 
+      <BarChart3 className="h-4 w-4 text-bull" /> : 
       <TrendingDown className="h-4 w-4 text-bear" />;
   };
 
