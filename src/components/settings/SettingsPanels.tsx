@@ -28,23 +28,9 @@ export const SettingsPanels: React.FC = () => {
   return (
     <div className="min-h-screen bg-background">
       <Tabs defaultValue="core" className="w-full" onValueChange={setActiveTab}>
-        {/* Integrated Header with Navigation */}
+        {/* Navigation Header */}
         <div className="border-b border-border/40 bg-card/30 backdrop-blur-sm">
           <div className="container mx-auto px-6 py-6">
-            {showSaveButton && (
-              <div className="flex justify-end mb-6">
-                <Button 
-                  onClick={() => {
-                    // Save settings to server
-                    console.log('Saving settings...', settings);
-                  }}
-                  size="sm"
-                  className="h-9"
-                >
-                  Save Changes
-                </Button>
-              </div>
-            )}
             
             {/* Horizontal Navigation */}
             <TabsList className="grid w-full grid-cols-7 bg-muted/50 h-auto p-1">
@@ -685,6 +671,22 @@ export const SettingsPanels: React.FC = () => {
       </TabsContent>
         </div>
       </Tabs>
+
+      {/* Bottom Save Button - Fixed position */}
+      {showSaveButton && (
+        <div className="fixed bottom-6 right-6 z-50">
+          <Button 
+            onClick={() => {
+              // Save settings to server
+              console.log('Saving settings...', settings);
+            }}
+            size="lg"
+            className="shadow-lg hover:shadow-xl transition-shadow"
+          >
+            Save Changes
+          </Button>
+        </div>
+      )}
     </div>
   );
 };
