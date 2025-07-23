@@ -7,15 +7,15 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings, Wifi, WifiOff, TrendingUp } from 'lucide-react';
-import { useSettingsStore } from '../../store/useSettingsStore';
 import { useTradingStore } from '../../store/useTradingStore';
+import { useNavigate } from 'react-router-dom';
 
 interface TopNavigationProps {
   isConnected: boolean;
 }
 
 export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => {
-  const { setSettingsOpen } = useSettingsStore();
+  const navigate = useNavigate();
   const { selectedSymbol, setSelectedSymbol } = useTradingStore();
   const symbols = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY', 'SENSEX'];
 
@@ -61,7 +61,7 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => 
             <Button 
               variant="ghost" 
               size="sm"
-              onClick={() => setSettingsOpen(true)}
+              onClick={() => navigate('/settings')}
             >
               <Settings className="h-4 w-4" />
             </Button>

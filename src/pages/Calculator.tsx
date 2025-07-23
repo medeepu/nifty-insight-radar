@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
-import { Calculator as CalcIcon, TrendingUp, Target, Shield } from 'lucide-react';
+import { Calculator as CalcIcon, TrendingUp, Target, Shield, PieChart } from 'lucide-react';
 
 interface OptionCalculation {
   theoreticalPrice: number;
@@ -289,18 +289,201 @@ const Calculator: React.FC = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="strategy">
+        <TabsContent value="strategy" className="space-y-4">
           <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground">Strategy analysis tools coming soon...</p>
+            <CardHeader>
+              <CardTitle>Strategy Builder</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium">Popular Strategies</h3>
+                  <div className="space-y-2">
+                    {[
+                      { name: 'Long Call', description: 'Bullish strategy with unlimited upside' },
+                      { name: 'Long Put', description: 'Bearish strategy with high profit potential' },
+                      { name: 'Covered Call', description: 'Generate income from existing positions' },
+                      { name: 'Cash Secured Put', description: 'Acquire stock at lower price' },
+                      { name: 'Bull Call Spread', description: 'Limited risk bullish strategy' },
+                      { name: 'Bear Put Spread', description: 'Limited risk bearish strategy' },
+                      { name: 'Iron Condor', description: 'Profit from low volatility' },
+                      { name: 'Straddle', description: 'Profit from high volatility' },
+                    ].map((strategy, index) => (
+                      <Card key={index} className="p-3 cursor-pointer hover:bg-muted/50">
+                        <div className="space-y-1">
+                          <div className="font-medium text-sm">{strategy.name}</div>
+                          <div className="text-xs text-muted-foreground">{strategy.description}</div>
+                        </div>
+                      </Card>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-medium">Strategy Analysis</h3>
+                  <Card className="p-4">
+                    <div className="space-y-3">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Selected Strategy</span>
+                        <Badge>Long Call</Badge>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Max Profit</span>
+                        <span className="font-mono text-bull-green">Unlimited</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Max Loss</span>
+                        <span className="font-mono text-bear-red">₹6,275</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Break Even</span>
+                        <span className="font-mono">₹22,625</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span className="text-sm">Probability of Profit</span>
+                        <span className="font-mono">42%</span>
+                      </div>
+                    </div>
+                  </Card>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">Risk Profile</h4>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="text-center p-2 bg-muted rounded">
+                        <div className="text-xs text-muted-foreground">Risk Level</div>
+                        <div className="font-medium text-neutral-yellow">Medium</div>
+                      </div>
+                      <div className="text-center p-2 bg-muted rounded">
+                        <div className="text-xs text-muted-foreground">Time Decay</div>
+                        <div className="font-medium text-bear-red">Negative</div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="payoff">
+        <TabsContent value="payoff" className="space-y-4">
           <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground">Payoff diagram calculator coming soon...</p>
+            <CardHeader>
+              <CardTitle>Payoff Diagram</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div className="space-y-4">
+                  <h3 className="font-medium">Position Details</h3>
+                  <div className="space-y-3">
+                    <div className="p-3 border rounded">
+                      <div className="flex justify-between items-center mb-2">
+                        <span className="font-medium">Long Call Option</span>
+                        <Button variant="outline" size="sm">Remove</Button>
+                      </div>
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>Strike: ₹22,500</div>
+                        <div>Premium: ₹125</div>
+                        <div>Quantity: 50</div>
+                        <div>Total Cost: ₹6,250</div>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <Button className="w-full">Add Another Leg</Button>
+                  
+                  <div className="space-y-2">
+                    <h4 className="font-medium">Key Levels</h4>
+                    <div className="space-y-1 text-sm">
+                      <div className="flex justify-between">
+                        <span>Break Even Point</span>
+                        <span className="font-mono">₹22,625</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Max Profit Point</span>
+                        <span className="font-mono text-bull-green">Unlimited</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>Max Loss Point</span>
+                        <span className="font-mono text-bear-red">₹6,250</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-4">
+                  <h3 className="font-medium">Payoff Chart</h3>
+                  <div className="h-64 bg-muted rounded flex items-center justify-center">
+                    <div className="text-center space-y-2">
+                      <PieChart className="w-12 h-12 mx-auto text-muted-foreground" />
+                      <p className="text-sm text-muted-foreground">Interactive payoff diagram</p>
+                      <p className="text-xs text-muted-foreground">Visual P&L across price levels</p>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-sm">P&L at Expiry</h4>
+                    <div className="space-y-1">
+                      {[
+                        { price: 22000, pnl: -6250, color: 'text-bear-red' },
+                        { price: 22300, pnl: -6250, color: 'text-bear-red' },
+                        { price: 22500, pnl: -6250, color: 'text-bear-red' },
+                        { price: 22625, pnl: 0, color: 'text-muted-foreground' },
+                        { price: 22800, pnl: 8750, color: 'text-bull-green' },
+                        { price: 23000, pnl: 18750, color: 'text-bull-green' },
+                      ].map((scenario, index) => (
+                        <div key={index} className="flex justify-between items-center text-sm">
+                          <span>At ₹{scenario.price.toLocaleString()}</span>
+                          <span className={`font-mono ${scenario.color}`}>
+                            {scenario.pnl > 0 ? '+' : ''}₹{scenario.pnl.toLocaleString()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Scenario Analysis</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <Card className="p-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-bull-green">Best Case</h4>
+                    <div className="text-sm space-y-1">
+                      <div>Price moves to ₹23,500</div>
+                      <div>Profit: <span className="font-mono text-bull-green">₹43,750</span></div>
+                      <div>Return: <span className="font-mono text-bull-green">+700%</span></div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-neutral-yellow">Expected</h4>
+                    <div className="text-sm space-y-1">
+                      <div>Price stays near ₹22,550</div>
+                      <div>Profit: <span className="font-mono text-neutral-yellow">₹2,500</span></div>
+                      <div>Return: <span className="font-mono text-neutral-yellow">+40%</span></div>
+                    </div>
+                  </div>
+                </Card>
+
+                <Card className="p-4">
+                  <div className="space-y-2">
+                    <h4 className="font-medium text-bear-red">Worst Case</h4>
+                    <div className="text-sm space-y-1">
+                      <div>Price below ₹22,500</div>
+                      <div>Loss: <span className="font-mono text-bear-red">₹6,250</span></div>
+                      <div>Return: <span className="font-mono text-bear-red">-100%</span></div>
+                    </div>
+                  </div>
+                </Card>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>

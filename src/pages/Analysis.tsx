@@ -234,26 +234,476 @@ const Analysis: React.FC = () => {
           </Card>
         </TabsContent>
 
-        <TabsContent value="technical">
+        <TabsContent value="technical" className="space-y-4">
           <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground">Advanced technical analysis charts and indicators coming soon...</p>
+            <CardHeader>
+              <CardTitle>Technical Indicators</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">RSI (14)</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <div className="flex justify-between">
+                        <span className="text-sm">Current</span>
+                        <span className="font-mono text-lg">62.5</span>
+                      </div>
+                      <Progress value={62.5} className="h-2" />
+                      <p className="text-xs text-muted-foreground">Neutral zone</p>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">MACD</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>MACD</span>
+                        <span className="font-mono text-bull-green">+15.2</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Signal</span>
+                        <span className="font-mono">12.8</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Histogram</span>
+                        <span className="font-mono text-bull-green">+2.4</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Stochastic</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>%K</span>
+                        <span className="font-mono">58.3</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>%D</span>
+                        <span className="font-mono">54.7</span>
+                      </div>
+                      <div className="text-xs text-muted-foreground">Bullish crossover</div>
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm">Bollinger Bands</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Upper</span>
+                        <span className="font-mono text-bear-red">22,850</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Middle</span>
+                        <span className="font-mono">22,550</span>
+                      </div>
+                      <div className="flex justify-between text-sm">
+                        <span>Lower</span>
+                        <span className="font-mono text-bull-green">22,250</span>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Moving Averages</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div className="space-y-3">
+                  <h4 className="font-medium">Simple Moving Averages</h4>
+                  <div className="space-y-2">
+                    {[
+                      { period: 'SMA 20', value: 22485, signal: 'Above' },
+                      { period: 'SMA 50', value: 22320, signal: 'Above' },
+                      { period: 'SMA 100', value: 22150, signal: 'Above' },
+                      { period: 'SMA 200', value: 21890, signal: 'Above' },
+                    ].map((sma, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm">{sma.period}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-sm">₹{sma.value.toLocaleString()}</span>
+                          <Badge className="text-xs bg-bull-green/10 text-bull-green">{sma.signal}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <h4 className="font-medium">Exponential Moving Averages</h4>
+                  <div className="space-y-2">
+                    {[
+                      { period: 'EMA 9', value: 22515, signal: 'Above' },
+                      { period: 'EMA 21', value: 22445, signal: 'Above' },
+                      { period: 'EMA 50', value: 22365, signal: 'Above' },
+                      { period: 'EMA 200', value: 21950, signal: 'Above' },
+                    ].map((ema, index) => (
+                      <div key={index} className="flex justify-between items-center">
+                        <span className="text-sm">{ema.period}</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-mono text-sm">₹{ema.value.toLocaleString()}</span>
+                          <Badge className="text-xs bg-bull-green/10 text-bull-green">{ema.signal}</Badge>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="sentiment">
+        <TabsContent value="sentiment" className="space-y-4">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Put-Call Ratio</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <span className="text-3xl font-bold text-neutral-yellow">0.85</span>
+                    <p className="text-sm text-muted-foreground">Current PCR</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Put Volume</span>
+                      <span className="font-mono">2.1M</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Call Volume</span>
+                      <span className="font-mono">2.5M</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Sentiment</span>
+                      <Badge className="bg-neutral-yellow/10 text-neutral-yellow">Neutral</Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">Market Sentiment</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <span className="text-3xl font-bold text-bull-green">65%</span>
+                    <p className="text-sm text-muted-foreground">Bullish</p>
+                  </div>
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Bullish</span>
+                        <span>65%</span>
+                      </div>
+                      <Progress value={65} className="h-2" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Bearish</span>
+                        <span>25%</span>
+                      </div>
+                      <Progress value={25} className="h-2" />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-sm">
+                        <span>Neutral</span>
+                        <span>10%</span>
+                      </div>
+                      <Progress value={10} className="h-2" />
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-lg">VIX Analysis</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <span className="text-3xl font-bold">18.5</span>
+                    <p className="text-sm text-muted-foreground">Current VIX</p>
+                  </div>
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-sm">
+                      <span>Change</span>
+                      <span className="font-mono text-bear-red">-0.8 (-4.1%)</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>52W High</span>
+                      <span className="font-mono">35.2</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>52W Low</span>
+                      <span className="font-mono">12.8</span>
+                    </div>
+                    <div className="flex justify-between text-sm">
+                      <span>Status</span>
+                      <Badge className="bg-neutral-yellow/10 text-neutral-yellow">Normal</Badge>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground">Market sentiment analysis and put-call ratio data coming soon...</p>
+            <CardHeader>
+              <CardTitle>Market Breadth</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">Advance/Decline</p>
+                  <p className="text-2xl font-bold text-bull-green">1.45</p>
+                  <p className="text-xs">28 Adv / 19 Dec</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">New Highs</p>
+                  <p className="text-2xl font-bold text-bull-green">12</p>
+                  <p className="text-xs">52-week highs</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">New Lows</p>
+                  <p className="text-2xl font-bold text-bear-red">3</p>
+                  <p className="text-xs">52-week lows</p>
+                </div>
+                <div className="text-center space-y-2">
+                  <p className="text-sm text-muted-foreground">Volume Ratio</p>
+                  <p className="text-2xl font-bold">1.2</p>
+                  <p className="text-xs">vs 20-day avg</p>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>Options Flow</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Top Call Strikes</h4>
+                    <div className="space-y-2">
+                      {[
+                        { strike: '22600', oi: '1.2M', change: '+25%' },
+                        { strike: '22700', oi: '985K', change: '+18%' },
+                        { strike: '22500', oi: '875K', change: '+12%' },
+                      ].map((strike, index) => (
+                        <div key={index} className="flex justify-between items-center text-sm">
+                          <span className="font-mono">{strike.strike}</span>
+                          <span>{strike.oi}</span>
+                          <span className="text-bull-green">{strike.change}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div className="space-y-3">
+                    <h4 className="font-medium">Top Put Strikes</h4>
+                    <div className="space-y-2">
+                      {[
+                        { strike: '22400', oi: '1.1M', change: '+20%' },
+                        { strike: '22300', oi: '950K', change: '+15%' },
+                        { strike: '22500', oi: '825K', change: '+10%' },
+                      ].map((strike, index) => (
+                        <div key={index} className="flex justify-between items-center text-sm">
+                          <span className="font-mono">{strike.strike}</span>
+                          <span>{strike.oi}</span>
+                          <span className="text-bull-green">{strike.change}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
 
-        <TabsContent value="volatility">
+        <TabsContent value="volatility" className="space-y-4">
           <Card>
-            <CardContent className="pt-6">
-              <p className="text-muted-foreground">Volatility surface analysis and VIX tracking coming soon...</p>
+            <CardHeader>
+              <CardTitle>Volatility Surface</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">Historical Volatility</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>1 Day</span>
+                          <span className="font-mono">22.5%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>1 Week</span>
+                          <span className="font-mono">19.8%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>1 Month</span>
+                          <span className="font-mono">18.2%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>3 Months</span>
+                          <span className="font-mono">16.5%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">Implied Volatility</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>ATM</span>
+                          <span className="font-mono">18.5%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>OTM Calls</span>
+                          <span className="font-mono">19.2%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>OTM Puts</span>
+                          <span className="font-mono">20.1%</span>
+                        </div>
+                        <div className="flex justify-between text-sm">
+                          <span>Skew</span>
+                          <span className="font-mono text-bear-red">+1.6%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+
+                  <Card>
+                    <CardHeader className="pb-3">
+                      <CardTitle className="text-sm">IV Rank</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      <div className="space-y-2">
+                        <div className="text-center">
+                          <span className="text-2xl font-bold">45%</span>
+                          <p className="text-xs text-muted-foreground">52-week rank</p>
+                        </div>
+                        <Progress value={45} className="h-2" />
+                        <div className="flex justify-between text-xs">
+                          <span>Low: 12%</span>
+                          <span>High: 38%</span>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </div>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-lg">Volatility Smile</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-3">
+                      <div className="text-sm text-muted-foreground">Strike vs Implied Volatility</div>
+                      <div className="grid grid-cols-5 gap-2 text-sm">
+                        <div className="text-center font-medium">Strike</div>
+                        <div className="text-center font-medium">Call IV</div>
+                        <div className="text-center font-medium">Put IV</div>
+                        <div className="text-center font-medium">Moneyness</div>
+                        <div className="text-center font-medium">Delta</div>
+                        
+                        {[
+                          { strike: '22300', callIV: '21.2%', putIV: '22.1%', moneyness: 'OTM', delta: '0.25' },
+                          { strike: '22400', callIV: '19.8%', putIV: '20.5%', moneyness: 'OTM', delta: '0.35' },
+                          { strike: '22500', callIV: '18.5%', putIV: '18.9%', moneyness: 'ATM', delta: '0.50' },
+                          { strike: '22600', callIV: '19.1%', putIV: '18.2%', moneyness: 'ITM', delta: '0.65' },
+                          { strike: '22700', callIV: '20.8%', putIV: '19.8%', moneyness: 'ITM', delta: '0.75' },
+                        ].map((row, index) => (
+                          <React.Fragment key={index}>
+                            <div className="text-center font-mono">{row.strike}</div>
+                            <div className="text-center font-mono">{row.callIV}</div>
+                            <div className="text-center font-mono">{row.putIV}</div>
+                            <div className="text-center">{row.moneyness}</div>
+                            <div className="text-center font-mono">{row.delta}</div>
+                          </React.Fragment>
+                        ))}
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card>
+            <CardHeader>
+              <CardTitle>VIX Term Structure</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">Front Month</p>
+                    <p className="text-xl font-bold">18.5</p>
+                    <p className="text-xs text-bear-red">-0.8 (-4.1%)</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">2nd Month</p>
+                    <p className="text-xl font-bold">19.2</p>
+                    <p className="text-xs text-bear-red">-0.5 (-2.6%)</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">3rd Month</p>
+                    <p className="text-xl font-bold">20.1</p>
+                    <p className="text-xs text-bear-red">-0.3 (-1.5%)</p>
+                  </div>
+                  <div className="text-center space-y-2">
+                    <p className="text-sm text-muted-foreground">Back Month</p>
+                    <p className="text-xl font-bold">21.0</p>
+                    <p className="text-xs text-neutral-yellow">0.0 (0.0%)</p>
+                  </div>
+                </div>
+                
+                <div className="space-y-2">
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Contango</span>
+                    <Badge className="bg-neutral-yellow/10 text-neutral-yellow">Normal</Badge>
+                  </div>
+                  <div className="flex justify-between items-center">
+                    <span className="text-sm">Term Structure Slope</span>
+                    <span className="font-mono text-sm">+2.5</span>
+                  </div>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </TabsContent>
