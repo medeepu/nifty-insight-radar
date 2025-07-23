@@ -21,7 +21,6 @@ const navigation = [
   { name: 'ML Insights', href: '/ml', icon: Brain },
   { name: 'Backtesting', href: '/backtest', icon: BarChart3 },
   { name: 'Logs', href: '/logs', icon: Activity },
-  { name: 'Profile', href: '/profile', icon: User },
   { name: 'Settings', href: '/settings', icon: Settings },
 ];
 

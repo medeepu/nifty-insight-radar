@@ -24,7 +24,7 @@ export const PriceAnalysisCard: React.FC = () => {
 
   // Auto-refresh with configurable interval - prevent excessive blinking
   useEffect(() => {
-    if (refreshInterval < 10000) return; // Minimum 10 seconds to prevent blinking
+    if (refreshInterval < 30000) return; // Minimum 30 seconds to prevent blinking
     
     const interval = setInterval(() => {
       refetch();
