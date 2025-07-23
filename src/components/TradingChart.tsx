@@ -39,8 +39,8 @@ export const TradingChart: React.FC<TradingChartProps> = ({
     if (!candleData?.candles) return [];
     
     return candleData.candles.map(candle => ({
-      x: new Date(candle.t).getTime(),
-      y: [candle.o, candle.h, candle.l, candle.c],
+      x: new Date(candle.time).getTime(),
+      y: [candle.open, candle.high, candle.low, candle.close],
     }));
   }, [candleData]);
 
@@ -49,8 +49,8 @@ export const TradingChart: React.FC<TradingChartProps> = ({
     if (!candleData?.candles) return [];
     
     return candleData.candles.map(candle => ({
-      x: new Date(candle.t).getTime(),
-      y: candle.v,
+      x: new Date(candle.time).getTime(),
+      y: candle.volume,
     }));
   }, [candleData]);
 

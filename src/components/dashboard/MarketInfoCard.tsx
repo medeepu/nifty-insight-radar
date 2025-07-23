@@ -50,7 +50,7 @@ export const MarketInfoCard: React.FC = () => {
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">Current Price</span>
           <span className="font-mono font-medium">
-            {currentPrice?.lastPrice?.toFixed(2) || '--'}
+            {currentPrice?.close?.toFixed(2) || '--'}
           </span>
         </div>
 
@@ -105,8 +105,8 @@ export const MarketInfoCard: React.FC = () => {
           <div className="flex justify-between items-center">
             <span className="text-xs text-muted-foreground">Last Update</span>
             <span className="text-xs font-mono text-muted-foreground">
-              {currentPrice?.timestamp ? 
-                new Date(currentPrice.timestamp).toLocaleTimeString() : 
+              {currentPrice?.time ? 
+                new Date(currentPrice.time).toLocaleTimeString() : 
                 '--:--:--'
               }
             </span>

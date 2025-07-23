@@ -14,25 +14,36 @@ export interface ApiResponse<T> {
 // Price Data
 export interface PriceData {
   symbol: string;
-  lastPrice: number;
-  timestamp: string;
+  close: number; // standardized from lastPrice
+  time: string;
   change?: number;
   changePercent?: number;
 }
 
 export interface Candle {
-  t: string; // timestamp
-  o: number; // open
-  h: number; // high
-  l: number; // low
-  c: number; // close
-  v: number; // volume
+  time: string | number; // unix timestamp or ISO8601
+  open: number;
+  high: number;
+  low: number;
+  close: number;
+  volume?: number;
 }
 
 export interface CandleData {
   candles: Candle[];
   symbol: string;
   timeframe: string;
+}
+
+// Chart Configuration Parameters
+export interface ChartParameters {
+  atrPeriod: number;
+  orbWindow: number;
+  emaPeriods: number[];
+  vwapEnabled: boolean;
+  rsiPeriod: number;
+  stochKPeriod: number;
+  stochDPeriod: number;
 }
 
 // Levels & Pivots
@@ -53,21 +64,21 @@ export interface DailyLevels {
 export type WeeklyLevels = DailyLevels;
 export type MonthlyLevels = DailyLevels;
 
-// Indicators
+// Indicators - Now expects full history arrays from backend
 export interface IndicatorData {
   ema: {
-    9: number;
-    21: number;
-    50: number;
-    200: number;
+    9: Array<{ time: string | number; value: number }>;
+    21: Array<{ time: string | number; value: number }>;
+    50: Array<{ time: string | number; value: number }>;
+    200: Array<{ time: string | number; value: number }>;
   };
-  vwap: number;
-  rsi: number;
+  vwap: Array<{ time: string | number; value: number }>;
+  rsi: Array<{ time: string | number; value: number }>;
   stoch: {
-    k: number;
-    d: number;
+    k: Array<{ time: string | number; value: number }>;
+    d: Array<{ time: string | number; value: number }>;
   };
-  atr: number;
+  atr: Array<{ time: string | number; value: number }>;
   ivRank?: number;
 }
 
