@@ -1,6 +1,6 @@
 import React from 'react';
 import { MarketOverview } from '../components/dashboard/MarketOverview';
-import { ModernTradingChart } from '../components/chart/ModernTradingChart';
+import { ChartManager } from '../components/chart/ChartManager';
 import { MarketInfoCard } from '../components/dashboard/MarketInfoCard';
 import { OptionParamsCard } from '../components/dashboard/OptionParamsCard';
 import { GreeksCard } from '../components/dashboard/GreeksCard';
@@ -22,9 +22,9 @@ export const Dashboard: React.FC = () => {
         <PriceAnalysisCard />
       </div>
       
-      {/* Main Chart - Full Width */}
+      {/* Main Charts - Full Width */}
       <div className="w-full">
-        <ModernTradingChart />
+        <ChartManager />
       </div>
       
       {/* Bottom Row - Pro Tip and Risk Widget */}

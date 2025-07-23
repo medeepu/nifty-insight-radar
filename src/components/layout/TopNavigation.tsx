@@ -5,8 +5,10 @@
 import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Settings, Wifi, WifiOff, TrendingUp } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
+import { useTradingStore } from '../../store/useTradingStore';
 
 interface TopNavigationProps {
   isConnected: boolean;
@@ -14,6 +16,8 @@ interface TopNavigationProps {
 
 export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => {
   const { setSettingsOpen } = useSettingsStore();
+  const { selectedSymbol, setSelectedSymbol } = useTradingStore();
+  const symbols = ['NIFTY', 'BANKNIFTY', 'FINNIFTY', 'MIDCPNIFTY', 'SENSEX'];
 
   return (
     <div className="bg-card border-b border-border">
@@ -27,13 +31,27 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => 
             <h1 className="text-lg font-bold text-foreground">DeepLab Trading</h1>
           </div>
 
-          {/* Connection Status and Settings */}
-          <div className="flex items-center gap-3">
+          {/* Symbol Selector, Connection Status and Settings */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm text-muted-foreground">Symbol:</span>
+              <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
+                <SelectTrigger className="w-32 h-8 bg-background">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-background border">
+                  {symbols.map(symbol => (
+                    <SelectItem key={symbol} value={symbol}>{symbol}</SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+
             <div className="flex items-center gap-2">
               {isConnected ? (
-                <Wifi className="h-4 w-4 text-bull" />
+                <Wifi className="h-4 w-4 text-bull-green" />
               ) : (
-                <WifiOff className="h-4 w-4 text-bear" />
+                <WifiOff className="h-4 w-4 text-bear-red" />
               )}
               <Badge variant={isConnected ? "default" : "destructive"} className="text-xs">
                 {isConnected ? "Connected" : "Disconnected"}

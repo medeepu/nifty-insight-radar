@@ -57,10 +57,10 @@ export const MenuBar: React.FC = () => {
           <div className="flex items-center gap-2">
             <span className="text-sm text-muted-foreground">Timeframe:</span>
             <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-              <SelectTrigger className="w-20 h-8">
+              <SelectTrigger className="w-20 h-8 bg-background">
                 <SelectValue />
               </SelectTrigger>
-              <SelectContent>
+              <SelectContent className="bg-background border">
                 {timeframes.map((tf) => (
                   <SelectItem key={tf} value={tf}>{tf}</SelectItem>
                 ))}

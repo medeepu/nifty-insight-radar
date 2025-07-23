@@ -9,6 +9,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { cn } from '@/lib/utils';
+import { useChartStore } from '../../store/useChartStore';
 
 interface MarketData {
   symbol: string;
@@ -54,8 +55,8 @@ export const MarketOverview: React.FC = () => {
   };
 
   const addAsChart = (symbol: string) => {
-    // TODO: Add chart functionality - will be implemented with chart management
-    console.log('Adding chart for:', symbol);
+    const { addChart } = useChartStore.getState();
+    addChart(symbol);
   };
 
   const replaceWidget = (index: number, newWidget: MarketData) => {
