@@ -21,58 +21,82 @@ export const SettingsPanels: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90 p-6">
-      {/* Beautiful Header */}
-      <div className="mb-8">
-        <div className="flex items-center justify-between">
-          <div>
-            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-              Trading Configuration
-            </h1>
-            <p className="text-muted-foreground mt-2">Customize your trading parameters and preferences</p>
-          </div>
-          <Button 
-            onClick={() => {
-              // Save settings to server
-              console.log('Saving settings...', settings);
-            }}
-            className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg"
-            size="lg"
-          >
-            Save Configuration
-          </Button>
-        </div>
-      </div>
-
-      <Tabs defaultValue="core" className="w-full" orientation="vertical">
-        <div className="flex gap-8">
-          <div className="w-64">
-            <TabsList className="flex flex-col h-fit w-full bg-card/50 backdrop-blur-sm border">
-              <TabsTrigger value="core" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+    <div className="min-h-screen bg-background">
+      <Tabs defaultValue="core" className="w-full">
+        {/* Integrated Header with Navigation */}
+        <div className="border-b border-border/40 bg-card/30 backdrop-blur-sm">
+          <div className="container mx-auto px-6 py-6">
+            <div className="flex items-start justify-between mb-6">
+              <div>
+                <h1 className="text-2xl font-semibold text-foreground">
+                  Settings
+                </h1>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Configure your trading parameters and preferences
+                </p>
+              </div>
+              <Button 
+                onClick={() => {
+                  // Save settings to server
+                  console.log('Saving settings...', settings);
+                }}
+                size="sm"
+                className="h-9"
+              >
+                Save Changes
+              </Button>
+            </div>
+            
+            {/* Horizontal Navigation */}
+            <TabsList className="grid w-full grid-cols-7 bg-muted/50 h-auto p-1">
+              <TabsTrigger 
+                value="core" 
+                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
                 Core Trading
               </TabsTrigger>
-              <TabsTrigger value="parameters" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Technical Parameters
+              <TabsTrigger 
+                value="parameters" 
+                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Technical
               </TabsTrigger>
-              <TabsTrigger value="greeks" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Greeks Configuration
+              <TabsTrigger 
+                value="greeks" 
+                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Greeks
               </TabsTrigger>
-              <TabsTrigger value="indicators" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Chart Indicators
+              <TabsTrigger 
+                value="indicators" 
+                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Indicators
               </TabsTrigger>
-              <TabsTrigger value="display" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Display Settings
+              <TabsTrigger 
+                value="display" 
+                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Display
               </TabsTrigger>
-              <TabsTrigger value="risk" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Risk Management
+              <TabsTrigger 
+                value="risk" 
+                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Risk
               </TabsTrigger>
-              <TabsTrigger value="broker" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                Broker Integration
+              <TabsTrigger 
+                value="broker" 
+                className="text-xs py-2 data-[state=active]:bg-background data-[state=active]:shadow-sm"
+              >
+                Broker
               </TabsTrigger>
             </TabsList>
           </div>
+        </div>
 
-          <div className="flex-1 max-w-4xl">
+        {/* Content Area */}
+        <div className="container mx-auto px-6 py-6">
 
       {/* Core Trading Settings */}
       <TabsContent value="core" className="space-y-6">
@@ -656,26 +680,10 @@ export const SettingsPanels: React.FC = () => {
         </Card>
       </TabsContent>
 
-      {/* Broker Integration Tab */}
-      <TabsContent value="broker" className="space-y-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Broker Integration</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="text-center text-muted-foreground py-8">
-              <p>Broker integration settings will be available here.</p>
-              <p className="text-sm mt-2">Configure Zerodha and Dhan API credentials for auto-trading.</p>
-            </div>
-          </CardContent>
-        </Card>
-      </TabsContent>
-
       {/* Broker Integration */}
       <TabsContent value="broker" className="space-y-6">
         <BrokerIntegrationPanel />
       </TabsContent>
-          </div>
         </div>
       </Tabs>
     </div>
