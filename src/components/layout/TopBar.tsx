@@ -1,8 +1,7 @@
 import React from 'react';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
-import { Settings, Wifi, WifiOff, Menu } from 'lucide-react';
+import { Settings, Wifi, WifiOff } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useTradingStore } from '../../store/useTradingStore';
 import { ProfileMenu } from './ProfileMenu';
@@ -14,14 +13,14 @@ interface TopBarProps {
 
 export const TopBar: React.FC<TopBarProps> = ({ isConnected, onReconnect }) => {
   const { setSettingsOpen } = useSettingsStore();
-  const { selectedSymbol, selectedTimeframe, currentSignal, setSelectedTimeframe, setSelectedSymbol } = useTradingStore();
-
-  const timeframes = ['1m', '3m', '5m', '15m', '30m', '1h', '4h', '1d'];
+  const { currentSignal } = useTradingStore();
 
   return (
-    <div className="h-14 bg-card flex items-center justify-between px-6">
+    <div className="h-14 bg-card/80 backdrop-blur-sm border-b flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
-        <h1 className="text-xl font-semibold">Nifty Options Trading</h1>
+        <h1 className="text-xl font-semibold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+          Nifty Options Trading
+        </h1>
         
         {currentSignal && (
           <Badge variant={currentSignal.signal === 'BUY' ? 'default' : currentSignal.signal === 'SELL' ? 'destructive' : 'secondary'}>
@@ -30,7 +29,7 @@ export const TopBar: React.FC<TopBarProps> = ({ isConnected, onReconnect }) => {
         )}
       </div>
       
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-4">
         <div className="flex items-center gap-2">
           {isConnected ? (
             <Wifi className="h-4 w-4 text-bull" />
@@ -46,6 +45,7 @@ export const TopBar: React.FC<TopBarProps> = ({ isConnected, onReconnect }) => {
           variant="ghost" 
           size="sm"
           onClick={() => setSettingsOpen(true)}
+          className="hover:bg-primary/10"
         >
           <Settings className="h-4 w-4" />
         </Button>

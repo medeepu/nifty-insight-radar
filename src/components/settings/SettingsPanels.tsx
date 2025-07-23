@@ -21,39 +21,64 @@ export const SettingsPanels: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
 
   return (
-    <div className="space-y-6">
-      {/* Save Settings Button */}
-      <div className="flex justify-between items-center">
-        <h2 className="text-lg font-semibold">Trading Configuration</h2>
-        <Button 
-          onClick={() => {
-            // Save settings to server
-            console.log('Saving settings...', settings);
-          }}
-          className="ml-auto"
-        >
-          Save Settings
-        </Button>
+    <div className="min-h-screen bg-gradient-to-br from-background via-background/95 to-background/90 p-6">
+      {/* Beautiful Header */}
+      <div className="mb-8">
+        <div className="flex items-center justify-between">
+          <div>
+            <h1 className="text-3xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+              Trading Configuration
+            </h1>
+            <p className="text-muted-foreground mt-2">Customize your trading parameters and preferences</p>
+          </div>
+          <Button 
+            onClick={() => {
+              // Save settings to server
+              console.log('Saving settings...', settings);
+            }}
+            className="bg-gradient-to-r from-primary to-primary/80 hover:from-primary/90 hover:to-primary/70 shadow-lg"
+            size="lg"
+          >
+            Save Configuration
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="core" className="w-full" orientation="vertical">
-        <div className="flex gap-6">
-          <TabsList className="flex flex-col h-fit w-48 space-y-1">
-            <TabsTrigger value="core" className="w-full justify-start">Core Trading</TabsTrigger>
-            <TabsTrigger value="greeks" className="w-full justify-start">Greeks</TabsTrigger>
-            <TabsTrigger value="indicators" className="w-full justify-start">Indicators</TabsTrigger>
-            <TabsTrigger value="display" className="w-full justify-start">Display</TabsTrigger>
-            <TabsTrigger value="risk" className="w-full justify-start">Risk Management</TabsTrigger>
-            <TabsTrigger value="broker" className="w-full justify-start">Broker Integration</TabsTrigger>
-          </TabsList>
+        <div className="flex gap-8">
+          <div className="w-64">
+            <TabsList className="flex flex-col h-fit w-full bg-card/50 backdrop-blur-sm border">
+              <TabsTrigger value="core" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Core Trading
+              </TabsTrigger>
+              <TabsTrigger value="parameters" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Technical Parameters
+              </TabsTrigger>
+              <TabsTrigger value="greeks" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Greeks Configuration
+              </TabsTrigger>
+              <TabsTrigger value="indicators" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Chart Indicators
+              </TabsTrigger>
+              <TabsTrigger value="display" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Display Settings
+              </TabsTrigger>
+              <TabsTrigger value="risk" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Risk Management
+              </TabsTrigger>
+              <TabsTrigger value="broker" className="w-full justify-start text-left font-medium data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
+                Broker Integration
+              </TabsTrigger>
+            </TabsList>
+          </div>
 
-          <div className="flex-1">
+          <div className="flex-1 max-w-4xl">
 
       {/* Core Trading Settings */}
       <TabsContent value="core" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Core Trading Inputs</CardTitle>
+        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-lg">
+            <CardTitle className="text-xl font-semibold">Core Trading Parameters</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -111,9 +136,9 @@ export const SettingsPanels: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Manual Option Settings</CardTitle>
+        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-t-lg">
+            <CardTitle className="text-xl font-semibold">Manual Option Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-3 gap-4">
@@ -157,11 +182,85 @@ export const SettingsPanels: React.FC = () => {
         </Card>
       </TabsContent>
 
+      {/* Technical Parameters */}
+      <TabsContent value="parameters" className="space-y-6">
+        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/5 rounded-t-lg">
+            <CardTitle className="text-xl font-semibold">User-Configurable Parameters</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-6 p-6">
+            <div className="grid grid-cols-2 gap-6">
+              <div className="space-y-2">
+                <Label htmlFor="atr-period" className="text-sm font-medium">ATR Period</Label>
+                <Input
+                  type="number"
+                  value={settings.technical.atrPeriod}
+                  onChange={(e) => updateSettings('technical.atrPeriod', parseInt(e.target.value))}
+                  placeholder="14"
+                  className="h-10"
+                />
+                <p className="text-xs text-muted-foreground">Average True Range calculation period</p>
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="orb-window" className="text-sm font-medium">ORB Window (minutes)</Label>
+                <Input
+                  type="number"
+                  value={settings.technical.orbSettings.openingRangeMinutes}
+                  onChange={(e) => updateSettings('technical.orbSettings.openingRangeMinutes', parseInt(e.target.value))}
+                  placeholder="15"
+                  className="h-10"
+                />
+                <p className="text-xs text-muted-foreground">Opening Range Breakout time window</p>
+              </div>
+            </div>
+            
+            <Separator />
+            
+            <div className="grid grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="volume-threshold" className="text-sm font-medium">Volume Threshold</Label>
+                <Input
+                  type="number"
+                  value={settings.technical.volumeThreshold}
+                  onChange={(e) => updateSettings('technical.volumeThreshold', parseInt(e.target.value))}
+                  placeholder="100000"
+                  className="h-10"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="consolidation-percent" className="text-sm font-medium">Consolidation %</Label>
+                <Input
+                  type="number"
+                  value={settings.technical.consolidationPercent}
+                  onChange={(e) => updateSettings('technical.consolidationPercent', parseFloat(e.target.value))}
+                  placeholder="1.0"
+                  step="0.1"
+                  className="h-10"
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="nr7-lookback" className="text-sm font-medium">NR7 Lookback</Label>
+                <Input
+                  type="number"
+                  value={settings.technical.nr7Lookback}
+                  onChange={(e) => updateSettings('technical.nr7Lookback', parseInt(e.target.value))}
+                  placeholder="7"
+                  className="h-10"
+                />
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
       {/* Greeks Settings */}
       <TabsContent value="greeks" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Greeks Configuration</CardTitle>
+        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-lg">
+            <CardTitle className="text-xl font-semibold">Greeks Configuration</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
@@ -288,9 +387,9 @@ export const SettingsPanels: React.FC = () => {
 
       {/* Display Settings */}
       <TabsContent value="display" className="space-y-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>Dashboard Display</CardTitle>
+        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-t-lg">
+            <CardTitle className="text-xl font-semibold">Dashboard Display</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-6">
@@ -353,9 +452,9 @@ export const SettingsPanels: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card>
-          <CardHeader>
-            <CardTitle>Chart Indicators</CardTitle>
+        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+          <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/5 rounded-t-lg">
+            <CardTitle className="text-xl font-semibold">Chart Indicators (Legacy)</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-6">

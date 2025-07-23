@@ -18,10 +18,10 @@ export const IndicatorSettings: React.FC = () => {
   return (
     <div className="space-y-6">
       {/* CPR Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <Activity className="h-4 w-4" />
+      <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-lg">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <Activity className="h-5 w-5" />
             CPR (Central Pivot Range)
           </CardTitle>
         </CardHeader>
@@ -106,10 +106,10 @@ export const IndicatorSettings: React.FC = () => {
       </Card>
 
       {/* EMA Settings */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <TrendingUp className="h-4 w-4" />
+      <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-t-lg">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <TrendingUp className="h-5 w-5" />
             Exponential Moving Averages
           </CardTitle>
         </CardHeader>
@@ -146,11 +146,11 @@ export const IndicatorSettings: React.FC = () => {
       </Card>
 
       {/* Oscillators */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium flex items-center gap-2">
-            <BarChart3 className="h-4 w-4" />
-            Oscillators
+      <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-accent/10 to-accent/5 rounded-t-lg">
+          <CardTitle className="text-lg font-semibold flex items-center gap-2">
+            <BarChart3 className="h-5 w-5" />
+            Oscillators & Technical Indicators
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
@@ -240,29 +240,30 @@ export const IndicatorSettings: React.FC = () => {
         </CardContent>
       </Card>
 
-      {/* Technical Parameters */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-sm font-medium">Technical Parameters</CardTitle>
+      {/* VWAP & Other Indicators */}
+      <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+        <CardHeader className="bg-gradient-to-r from-primary/10 to-primary/5 rounded-t-lg">
+          <CardTitle className="text-lg font-semibold">VWAP & Additional Indicators</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <Label htmlFor="atr-period">ATR Period</Label>
-              <Input
-                type="number"
-                value={settings.technical.atrPeriod}
-                onChange={(e) => updateSettings('technical.atrPeriod', parseInt(e.target.value))}
-                placeholder="14"
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="orb-window">ORB Window (minutes)</Label>
-              <Input
-                type="number"
-                value={settings.technical.orbSettings.openingRangeMinutes}
-                onChange={(e) => updateSettings('technical.orbSettings.openingRangeMinutes', parseInt(e.target.value))}
-                placeholder="15"
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <Label htmlFor="vwap-enabled" className="text-sm font-medium">Enable VWAP</Label>
+            <Switch
+              checked={settings.indicators.vwap.enabled}
+              onCheckedChange={(checked) => updateSettings('indicators.vwap.enabled', checked)}
+            />
+          </div>
+          
+          <Separator />
+          
+          <div className="space-y-3">
+            <h4 className="text-sm font-medium text-muted-foreground">Previous Day Levels</h4>
+            
+            <div className="flex items-center justify-between">
+              <Label htmlFor="pdh-pdl" className="text-sm">Previous Day High/Low</Label>
+              <Switch
+                checked={settings.cprPivots.showPDH_PDL}
+                onCheckedChange={(checked) => updateSettings('cprPivots.showPDH_PDL', checked)}
               />
             </div>
           </div>
