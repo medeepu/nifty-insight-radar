@@ -8,7 +8,7 @@ import { createChart, IChartApi, ISeriesApi, CandlestickData, LineData, ColorTyp
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Settings, X } from 'lucide-react';
-import { Candle, IndicatorData, DailyLevels, SignalData } from '../../types/api';
+import { Candle, IndicatorData } from '../../types/api';
 import { ChartSettings } from './ChartSettings';
 import { useChartStore } from '../../store/useChartStore';
 
@@ -20,7 +20,6 @@ interface LightweightChartProps {
 export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRemove }) => {
   const chartContainerRef = useRef<HTMLDivElement>(null);
   const chartRef = useRef<IChartApi | null>(null);
-  const candlestickSeriesRef = useRef<ISeriesApi<'Candlestick'> | null>(null);
   const [showSettings, setShowSettings] = useState(false);
   const { updateChart } = useChartStore();
 
@@ -117,14 +116,6 @@ export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRem
       },
       crosshair: {
         mode: 1,
-        vertLine: {
-          color: 'hsl(var(--primary))',
-          style: 0,
-        },
-        horzLine: {
-          color: 'hsl(var(--primary))',
-          style: 0,
-        },
       },
       rightPriceScale: {
         borderVisible: false,
@@ -144,13 +135,14 @@ export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRem
       height: 400,
     });
 
+    // Add candlestick series
     const candlestickSeries = newChart.addCandlestickSeries({
-      upColor: 'hsl(var(--bull-green))',
-      downColor: 'hsl(var(--bear-red))',
-      borderDownColor: 'hsl(var(--bear-red))',
-      borderUpColor: 'hsl(var(--bull-green))',
-      wickDownColor: 'hsl(var(--bear-red))',
-      wickUpColor: 'hsl(var(--bull-green))',
+      upColor: '#22c55e',
+      downColor: '#ef4444',
+      borderDownColor: '#ef4444',
+      borderUpColor: '#22c55e',
+      wickDownColor: '#ef4444',
+      wickUpColor: '#22c55e',
     });
 
     // Convert candle data to Lightweight Charts format
@@ -179,7 +171,7 @@ export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRem
             ema9Series.setData(mockIndicators.ema[9] as LineData[]);
           }
           if (indicator.subSettings?.ema21) {
-            const ema21Series = newChart.addSeries('Line', {
+            const ema21Series = newChart.addLineSeries({
               color: '#4ecdc4',
               lineWidth: 1,
               title: 'EMA 21',
@@ -187,7 +179,7 @@ export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRem
             ema21Series.setData(mockIndicators.ema[21] as LineData[]);
           }
           if (indicator.subSettings?.ema50) {
-            const ema50Series = newChart.addSeries('Line', {
+            const ema50Series = newChart.addLineSeries({
               color: '#45b7d1',
               lineWidth: 1,
               title: 'EMA 50',
@@ -195,7 +187,7 @@ export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRem
             ema50Series.setData(mockIndicators.ema[50] as LineData[]);
           }
           if (indicator.subSettings?.ema200) {
-            const ema200Series = newChart.addSeries('Line', {
+            const ema200Series = newChart.addLineSeries({
               color: '#f39c12',
               lineWidth: 2,
               title: 'EMA 200',
@@ -205,7 +197,7 @@ export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRem
           break;
 
         case 'VWAP':
-          const vwapSeries = newChart.addSeries('Line', {
+          const vwapSeries = newChart.addLineSeries({
             color: '#9b59b6',
             lineWidth: 2,
             lineStyle: 1, // dashed
@@ -217,7 +209,6 @@ export const LightweightChart: React.FC<LightweightChartProps> = ({ chart, onRem
     });
 
     chartRef.current = newChart;
-    candlestickSeriesRef.current = candlestickSeries;
 
     // Handle resize
     const handleResize = () => {
