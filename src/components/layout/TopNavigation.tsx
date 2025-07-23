@@ -1,36 +1,22 @@
 /**
- * Top Navigation Bar - Converted from Sidebar
+ * Top Header with Logo and Connection Status
  */
 
 import React from 'react';
-import { NavLink } from 'react-router-dom';
-import { 
-  BarChart3, 
-  Settings, 
-  Calculator, 
-  Activity, 
-  Brain, 
-  User,
-  TrendingUp
-} from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Settings, Wifi, WifiOff, TrendingUp } from 'lucide-react';
+import { useSettingsStore } from '../../store/useSettingsStore';
 
-const navigation = [
-  { name: 'Dashboard', href: '/', icon: BarChart3 },
-  { name: 'Analysis', href: '/analysis', icon: TrendingUp },
-  { name: 'Calculator', href: '/calculator', icon: Calculator },
-  { name: 'Signals', href: '/signals', icon: Activity },
-  { name: 'ML Insights', href: '/ml', icon: Brain },
-  { name: 'Backtesting', href: '/backtest', icon: BarChart3 },
-  { name: 'Logs', href: '/logs', icon: Activity },
-  { name: 'Profile', href: '/profile', icon: User },
-  { name: 'Settings', href: '/settings', icon: Settings },
-];
+interface TopNavigationProps {
+  isConnected: boolean;
+}
 
-export const TopNavigation: React.FC = () => {
+export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => {
+  const { setSettingsOpen } = useSettingsStore();
+
   return (
-    <nav className="bg-card border-b border-border">
+    <div className="bg-card border-b border-border">
       <div className="px-6">
         <div className="flex items-center justify-between h-14">
           {/* Logo */}
@@ -38,30 +24,32 @@ export const TopNavigation: React.FC = () => {
             <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center">
               <TrendingUp className="w-5 h-5 text-primary-foreground" />
             </div>
-            <h1 className="text-lg font-bold text-foreground">Nifty Options</h1>
+            <h1 className="text-lg font-bold text-foreground">DeepLab Trading</h1>
           </div>
 
-          {/* Navigation Links */}
-          <div className="flex items-center space-x-1">
-            {navigation.map((item) => (
-              <NavLink
-                key={item.name}
-                to={item.href}
-                className={({ isActive }) => cn(
-                  "flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-colors",
-                  "hover:bg-accent hover:text-accent-foreground",
-                  isActive 
-                    ? "bg-primary text-primary-foreground" 
-                    : "text-muted-foreground"
-                )}
-              >
-                <item.icon className="w-4 h-4 mr-2" />
-                {item.name}
-              </NavLink>
-            ))}
+          {/* Connection Status and Settings */}
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
+              {isConnected ? (
+                <Wifi className="h-4 w-4 text-bull" />
+              ) : (
+                <WifiOff className="h-4 w-4 text-bear" />
+              )}
+              <Badge variant={isConnected ? "default" : "destructive"} className="text-xs">
+                {isConnected ? "Connected" : "Disconnected"}
+              </Badge>
+            </div>
+            
+            <Button 
+              variant="ghost" 
+              size="sm"
+              onClick={() => setSettingsOpen(true)}
+            >
+              <Settings className="h-4 w-4" />
+            </Button>
           </div>
         </div>
       </div>
-    </nav>
+    </div>
   );
 };
