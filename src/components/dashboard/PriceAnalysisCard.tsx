@@ -3,20 +3,34 @@
  * Displays intrinsic value, time value, and premium analysis
  */
 
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
-import { BarChart3, TrendingUp } from 'lucide-react';
+import { Button } from '../ui/button';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { BarChart3, TrendingUp, Settings } from 'lucide-react';
 import { useGreeks } from '../../hooks/useApi';
 import { useTradingStore } from '../../store/useTradingStore';
 
 export const PriceAnalysisCard: React.FC = () => {
   const { selectedSymbol } = useTradingStore();
+  const [refreshInterval, setRefreshInterval] = useState<number>(5000); // 5 seconds default
+  const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
   // Mock option symbol - would be constructed from current selection
   const optionSymbol = `${selectedSymbol}24DEC21000CE`;
-  const { data: greeks, isLoading } = useGreeks(optionSymbol);
+  const { data: greeks, isLoading, refetch } = useGreeks(optionSymbol);
+
+  // Auto-refresh with configurable interval
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refetch();
+      setLastRefresh(new Date());
+    }, refreshInterval);
+
+    return () => clearInterval(interval);
+  }, [refreshInterval, refetch]);
 
   const getValueBreakdown = () => {
     if (!greeks) return { intrinsic: 0, time: 0, total: 0 };
@@ -78,10 +92,39 @@ export const PriceAnalysisCard: React.FC = () => {
   return (
     <Card className="trading-card">
       <CardHeader className="pb-3">
-        <CardTitle className="text-sm font-medium flex items-center gap-2">
-          <BarChart3 className="h-4 w-4" />
-          Price Analysis
+        <CardTitle className="text-sm font-medium flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Price Analysis
+          </div>
+          <div className="flex items-center gap-2">
+            <Select value={refreshInterval.toString()} onValueChange={(value) => setRefreshInterval(parseInt(value))}>
+              <SelectTrigger className="w-20 h-7 text-xs">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="1000">1s</SelectItem>
+                <SelectItem value="5000">5s</SelectItem>
+                <SelectItem value="10000">10s</SelectItem>
+                <SelectItem value="30000">30s</SelectItem>
+              </SelectContent>
+            </Select>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="h-7 w-7 p-0"
+              onClick={() => {
+                refetch();
+                setLastRefresh(new Date());
+              }}
+            >
+              <Settings className="h-3 w-3" />
+            </Button>
+          </div>
         </CardTitle>
+        <div className="text-xs text-muted-foreground">
+          Last updated: {lastRefresh.toLocaleTimeString()}
+        </div>
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Theoretical Price */}

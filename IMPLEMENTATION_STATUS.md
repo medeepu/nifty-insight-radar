@@ -41,11 +41,14 @@
 - [x] **Budget & Risk Management** (max budget, loss %, defaults)
 - [x] **Broker Integrations** (Dhan/Zerodha API keys)
 
-### Missing Pages
-- [ ] **Backtesting Page** (date range, params, results, equity curve)
-- [ ] **ML Boost Page** (regime classification, confidence scores)
-- [ ] **Logs / Activity Feed** (system messages, virtualized list)
-- [ ] **User Profile / Settings Page** (theme, preferences)
+### Application Pages ✅ COMPLETED
+- [x] **Backtesting Page** ✅ COMPLETED - Date range, params, results, equity curve implemented  
+- [x] **ML Boost Page** ✅ COMPLETED - Regime classification, confidence scores implemented
+- [x] **Logs / Activity Feed** ✅ COMPLETED - System messages, virtualized list implemented
+- [x] **User Profile / Settings Page** ✅ COMPLETED - Theme, preferences, account settings implemented
+- [x] **Signals Page** ✅ COMPLETED - Live signals, history, filters implemented
+- [x] **Calculator Page** ✅ COMPLETED - Option pricing, Greeks, strategy analysis implemented
+- [x] **Analysis Page** ✅ COMPLETED - Market analysis, technical indicators, sentiment implemented
 
 ### Chart Functionality ✅ COMPLETED
 - [x] **Multiple chart support** ✅ COMPLETED - ("Add Chart" button functionality)
@@ -62,18 +65,21 @@
 - [x] **Market overview cards** (NIFTY, BANKNIFTY, FINNIFTY)
 - [x] **Collapsible panels**
 - [x] **Responsive design**
+- [x] **"Add as Chart" functionality** ✅ COMPLETED - Widget integration with chart system
+- [x] **Configurable refresh rates** ✅ COMPLETED - Greeks & Price Analysis cards with custom intervals
 - [ ] **Proper loading states**
 - [ ] **Error handling with toasts**
 
 ## PRIORITY FIXES NEEDED ✅ ALL COMPLETED
 1. ~~**Complete Settings Drawer**~~ ✅ COMPLETED - All setting panels implemented
 2. ~~**TradingView-style Chart**~~ ✅ COMPLETED - Interactive chart with advanced features
-3. ~~**Missing Pages**~~ ✅ COMPLETED - Backtesting, ML, Logs, Profile implemented
+3. ~~**All Application Pages**~~ ✅ COMPLETED - Profile, Signals, Calculator, Analysis, Backtesting, ML, Logs
 4. ~~**Modern Compact Layout**~~ ✅ COMPLETED - Clean two-tier navigation
 5. ~~**Navigation System**~~ ✅ COMPLETED - Top navigation implemented
 6. ~~**Market Overview Widgets**~~ ✅ COMPLETED - Compact price displays with "Add as Chart"
 7. ~~**Multi-Chart System**~~ ✅ COMPLETED - Dynamic chart management with granular controls
 8. ~~**Interactive Features**~~ ✅ COMPLETED - Zoom, hover tooltips, responsive design
+9. ~~**Widget Functionality**~~ ✅ COMPLETED - Add as Chart, configurable refresh rates
 
-## ESTIMATED COMPLETION: ~95% Complete  
-Remaining: Backend API connections, real-time data streams, advanced trading features.
+## ESTIMATED COMPLETION: ~98% Complete  
+Remaining: Backend API connections, real-time data streams, minor polish features.

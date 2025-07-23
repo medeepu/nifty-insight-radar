@@ -54,8 +54,9 @@ export const MarketOverview: React.FC = () => {
     }
   };
 
+  const { addChart } = useChartStore();
+
   const addAsChart = (symbol: string) => {
-    const { addChart } = useChartStore.getState();
     addChart(symbol);
   };
 
