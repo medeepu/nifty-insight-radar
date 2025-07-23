@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Settings, Wifi, WifiOff, TrendingUp } from 'lucide-react';
 import { useTradingStore } from '../../store/useTradingStore';
 import { useNavigate } from 'react-router-dom';
+import { ProfileMenu } from './ProfileMenu';
 
 interface TopNavigationProps {
   isConnected: boolean;
@@ -51,6 +52,8 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => 
             >
               <Settings className="h-4 w-4" />
             </Button>
+            
+            <ProfileMenu />
           </div>
         </div>
       </div>
