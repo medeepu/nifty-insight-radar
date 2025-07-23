@@ -45,14 +45,6 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => 
               </Badge>
             </div>
             
-            <Button 
-              variant="ghost" 
-              size="sm"
-              onClick={() => navigate('/settings')}
-            >
-              <Settings className="h-4 w-4" />
-            </Button>
-            
             <ProfileMenu />
           </div>
         </div>

@@ -1,12 +1,27 @@
 /**
- * Modern Trading Chart - TradingView Style with Overlays
+ * Modern Trading Chart with Lightweight Charts Integration
+ * Includes WebSocket price feeds and technical indicators
  */
 
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Badge } from '../ui/badge';
-import { Settings, Plus, X, TrendingUp, Activity } from 'lucide-react';
+import { Plus, X, TrendingUp, Activity, TrendingDown, Minus } from 'lucide-react';
+import { useTradingStore } from '../../store/useTradingStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import {
+  createChart,
+  IChartApi,
+  ISeriesApi,
+  CandlestickData,
+  LineData,
+  HistogramData,
+  ColorType,
+  CrosshairMode,
+  LineStyle,
+} from 'lightweight-charts';
 
 interface Indicator {
   id: string;
@@ -27,9 +42,143 @@ const availableIndicators: Indicator[] = [
   { id: 'stochastic', name: 'Stochastic', type: 'oscillator', enabled: false },
 ];
 
+interface ChartSeries {
+  candlestick?: ISeriesApi<any>;
+  ema9?: ISeriesApi<any>;
+  ema21?: ISeriesApi<any>;
+  ema50?: ISeriesApi<any>;
+  ema200?: ISeriesApi<any>;
+  vwap?: ISeriesApi<any>;
+  volume?: ISeriesApi<any>;
+}
+
 export const ModernTradingChart: React.FC = () => {
+  const chartRef = useRef<IChartApi | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const seriesRef = useRef<ChartSeries>({});
   const [indicators, setIndicators] = useState<Indicator[]>(availableIndicators);
   const [showAddIndicator, setShowAddIndicator] = useState(false);
+  
+  const {
+    selectedSymbol,
+    selectedTimeframe,
+    currentPrice,
+    currentSignal,
+    isConnected,
+  } = useTradingStore();
+  
+  const { settings } = useSettingsStore();
+
+  // Initialize chart
+  const initChart = useCallback(() => {
+    if (!containerRef.current || chartRef.current) return;
+
+    const isDark = document.documentElement.classList.contains('dark');
+    
+    chartRef.current = createChart(containerRef.current, {
+      layout: {
+        background: { type: ColorType.Solid, color: isDark ? '#0a0a0a' : '#ffffff' },
+        textColor: isDark ? '#e4e4e7' : '#18181b',
+      },
+      grid: {
+        vertLines: { color: isDark ? '#27272a' : '#e4e4e7' },
+        horzLines: { color: isDark ? '#27272a' : '#e4e4e7' },
+      },
+      crosshair: {
+        mode: CrosshairMode.Normal,
+      },
+      rightPriceScale: {
+        borderColor: isDark ? '#27272a' : '#e4e4e7',
+      },
+      timeScale: {
+        borderColor: isDark ? '#27272a' : '#e4e4e7',
+        timeVisible: true,
+        secondsVisible: false,
+      },
+      width: containerRef.current.clientWidth,
+      height: 400,
+    });
+
+    // Add candlestick series
+    seriesRef.current.candlestick = chartRef.current.addSeries('Candlestick', {
+      upColor: '#22c55e',
+      downColor: '#ef4444',
+      borderVisible: false,
+      wickUpColor: '#22c55e',
+      wickDownColor: '#ef4444',
+    });
+
+    // Add volume histogram
+    seriesRef.current.volume = chartRef.current.addSeries('Histogram', {
+      color: 'rgba(34, 197, 94, 0.3)',
+      priceFormat: {
+        type: 'volume',
+      },
+      priceScaleId: '',
+    });
+
+    chartRef.current.priceScale('').applyOptions({
+      scaleMargins: {
+        top: 0.8,
+        bottom: 0,
+      },
+    });
+
+    // Load sample data
+    loadSampleData();
+  }, []);
+
+  // Load sample data
+  const loadSampleData = useCallback(() => {
+    if (!seriesRef.current.candlestick) return;
+
+    const sampleData: CandlestickData[] = [];
+    const now = Math.floor(Date.now() / 1000);
+    
+    for (let i = 100; i >= 0; i--) {
+      const time = now - i * 300;
+      const open = 19500 + Math.random() * 200;
+      const close = open + (Math.random() - 0.5) * 100;
+      const high = Math.max(open, close) + Math.random() * 50;
+      const low = Math.min(open, close) - Math.random() * 50;
+      
+      sampleData.push({
+        time: time as any,
+        open,
+        high,
+        low,
+        close,
+      });
+    }
+
+    seriesRef.current.candlestick.setData(sampleData);
+  }, []);
+
+  // Handle real-time price updates
+  const handlePriceUpdate = useCallback((priceData: any) => {
+    if (!seriesRef.current.candlestick) return;
+
+    const candleData: CandlestickData = {
+      time: Math.floor(new Date(priceData.timestamp).getTime() / 1000) as any,
+      open: priceData.open || priceData.lastPrice,
+      high: priceData.high || priceData.lastPrice,
+      low: priceData.low || priceData.lastPrice,
+      close: priceData.lastPrice,
+    };
+
+    seriesRef.current.candlestick.update(candleData);
+  }, []);
+
+  // Handle window resize
+  const handleResize = useCallback(() => {
+    if (chartRef.current && containerRef.current) {
+      const { clientWidth } = containerRef.current;
+      chartRef.current.applyOptions({
+        width: clientWidth,
+        height: 400,
+      });
+    }
+  }, []);
 
   const toggleIndicator = (id: string) => {
     setIndicators(prev => 
@@ -37,6 +186,36 @@ export const ModernTradingChart: React.FC = () => {
         ind.id === id ? { ...ind, enabled: !ind.enabled } : ind
       )
     );
+
+    // Add/remove indicators from chart
+    if (chartRef.current) {
+      const indicator = indicators.find(ind => ind.id === id);
+      if (indicator) {
+        if (indicator.enabled) {
+          // Remove indicator
+          if (seriesRef.current[id as keyof ChartSeries]) {
+            chartRef.current.removeSeries(seriesRef.current[id as keyof ChartSeries]!);
+            delete seriesRef.current[id as keyof ChartSeries];
+          }
+        } else {
+          // Add indicator
+          if (id === 'ema-21') {
+            seriesRef.current.ema21 = chartRef.current.addSeries('Line', {
+              color: '#06b6d4',
+              lineWidth: 1,
+              title: 'EMA 21',
+            });
+          } else if (id === 'vwap') {
+            seriesRef.current.vwap = chartRef.current.addSeries('Line', {
+              color: '#fbbf24',
+              lineWidth: 1,
+              lineStyle: LineStyle.Dashed,
+              title: 'VWAP',
+            });
+          }
+        }
+      }
+    }
   };
 
   const addIndicator = (indicatorId: string) => {
@@ -44,19 +223,66 @@ export const ModernTradingChart: React.FC = () => {
     setShowAddIndicator(false);
   };
 
+  // Initialize chart
+  useEffect(() => {
+    initChart();
+    window.addEventListener('resize', handleResize);
+
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      if (chartRef.current) {
+        chartRef.current.remove();
+        chartRef.current = null;
+      }
+    };
+  }, [initChart, handleResize]);
+
+  // Update real-time price
+  useEffect(() => {
+    if (currentPrice && currentPrice.symbol === selectedSymbol) {
+      handlePriceUpdate(currentPrice);
+    }
+  }, [currentPrice, selectedSymbol, handlePriceUpdate]);
+
   const enabledIndicators = indicators.filter(ind => ind.enabled);
   const availableToAdd = indicators.filter(ind => !ind.enabled);
+
+  // Get signal indicator
+  const getSignalBadge = () => {
+    if (!currentSignal) return null;
+
+    const { signal } = currentSignal;
+    const Icon = signal === 'BUY' ? TrendingUp : signal === 'SELL' ? TrendingDown : Minus;
+    const variant = signal === 'BUY' ? 'default' : signal === 'SELL' ? 'destructive' : 'secondary';
+
+    return (
+      <Badge variant={variant} className="flex items-center gap-1">
+        <Icon className="h-3 w-3" />
+        {signal}
+      </Badge>
+    );
+  };
 
   return (
     <Card className="h-full">
       <div className="p-4 border-b">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <h3 className="font-medium">NIFTY Chart</h3>
-            <Badge variant="outline">5m</Badge>
+            <h3 className="font-medium">{selectedSymbol} Chart</h3>
+            <Badge variant="outline">{selectedTimeframe}</Badge>
+            {getSignalBadge()}
+            <Badge variant={isConnected ? 'default' : 'secondary'}>
+              {isConnected ? 'Live' : 'Offline'}
+            </Badge>
           </div>
           
           <div className="flex items-center gap-2">
+            {currentPrice && (
+              <Badge variant="outline" className="text-sm">
+                ₹{currentPrice.symbol}
+              </Badge>
+            )}
+
             {/* Active Indicators */}
             {enabledIndicators.map((indicator) => (
               <Badge 
@@ -86,7 +312,7 @@ export const ModernTradingChart: React.FC = () => {
                   className="flex items-center gap-1"
                 >
                   <Plus className="h-3 w-3" />
-                  Add Indicator
+                  Add
                 </Button>
                 
                 {showAddIndicator && (
@@ -128,18 +354,11 @@ export const ModernTradingChart: React.FC = () => {
         </div>
       </div>
       
-      <div className="p-4 h-96 flex items-center justify-center text-muted-foreground">
-        <div className="text-center">
-          <div className="text-2xl mb-2">📈</div>
-          <p>TradingView-style Chart</p>
-          <p className="text-sm">Real-time candlestick chart with {enabledIndicators.length} indicators active</p>
-          {enabledIndicators.length > 0 && (
-            <div className="mt-2 text-xs">
-              Active: {enabledIndicators.map(ind => ind.name).join(', ')}
-            </div>
-          )}
-        </div>
-      </div>
+      <div 
+        ref={containerRef}
+        className="w-full h-96 bg-background"
+        style={{ minHeight: '400px' }}
+      />
     </Card>
   );
 };
