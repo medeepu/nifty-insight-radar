@@ -146,6 +146,7 @@ const DEFAULT_SETTINGS: TradingSettings = {
       enabled: true,
       openingRangeMinutes: 15,
     },
+    atrPeriod: 14,
     reversalSettings: {
       enabled: true,
       lookbackPeriods: 5,

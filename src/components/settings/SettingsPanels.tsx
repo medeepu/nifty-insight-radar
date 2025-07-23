@@ -20,11 +20,12 @@ export const SettingsPanels: React.FC = () => {
 
   return (
     <Tabs defaultValue="core" className="w-full">
-      <TabsList className="grid w-full grid-cols-4">
+      <TabsList className="grid w-full grid-cols-5">
         <TabsTrigger value="core">Core</TabsTrigger>
         <TabsTrigger value="greeks">Greeks</TabsTrigger>
         <TabsTrigger value="display">Display</TabsTrigger>
         <TabsTrigger value="risk">Risk</TabsTrigger>
+        <TabsTrigger value="broker">Broker</TabsTrigger>
       </TabsList>
 
       {/* Core Trading Settings */}
@@ -526,6 +527,21 @@ export const SettingsPanels: React.FC = () => {
             <Button className="w-full" variant="outline">
               Test Connection
             </Button>
+          </CardContent>
+        </Card>
+      </TabsContent>
+
+      {/* Broker Integration Tab */}
+      <TabsContent value="broker" className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Broker Integration</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-center text-muted-foreground py-8">
+              <p>Broker integration settings will be available here.</p>
+              <p className="text-sm mt-2">Configure Zerodha and Dhan API credentials for auto-trading.</p>
+            </div>
           </CardContent>
         </Card>
       </TabsContent>

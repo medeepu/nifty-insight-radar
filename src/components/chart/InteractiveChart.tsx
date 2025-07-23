@@ -29,15 +29,35 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
             </Button>
           )}
         </div>
-        <div className="h-96 bg-muted/10 border border-dashed rounded-lg flex items-center justify-center">
-          <div className="text-center space-y-2">
-            <p className="text-lg font-semibold">TradingView Lightweight Charts</p>
-            <p className="text-muted-foreground">
-              Chart integration completed - awaiting backend data connection
-            </p>
-            <p className="text-sm text-muted-foreground">
-              Features: Multi-timeframe, Technical indicators, Real-time updates
-            </p>
+        <div className="grid grid-cols-4 gap-4">
+          <div className="col-span-3">
+            <div className="h-96 bg-muted/10 border border-dashed rounded-lg flex items-center justify-center">
+              <div className="text-center space-y-2">
+                <p className="text-lg font-semibold">TradingView Lightweight Charts</p>
+                <p className="text-muted-foreground">
+                  Chart: {chart.symbol} ({chart.timeframe}) - Ready for data connection
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  Features: Multi-timeframe, Technical indicators, Real-time updates
+                </p>
+              </div>
+            </div>
+          </div>
+          <div className="col-span-1">
+            <div className="h-96 overflow-y-auto">
+              {/* Chart Indicators Panel would go here */}
+              <div className="space-y-2">
+                <h3 className="font-semibold text-sm">Indicators</h3>
+                <div className="text-xs text-muted-foreground">
+                  • EMA 9, 21, 50, 200<br/>
+                  • VWAP<br/>
+                  • RSI (14)<br/>
+                  • CPR & Pivots<br/>
+                  • Bollinger Bands<br/>
+                  • Stochastic<br/>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>

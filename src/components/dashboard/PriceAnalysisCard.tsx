@@ -22,8 +22,10 @@ export const PriceAnalysisCard: React.FC = () => {
   const optionSymbol = `${selectedSymbol}24DEC21000CE`;
   const { data: greeks, isLoading, refetch } = useGreeks(optionSymbol);
 
-  // Auto-refresh with configurable interval
+  // Auto-refresh with configurable interval - prevent excessive blinking
   useEffect(() => {
+    if (refreshInterval < 3000) return; // Minimum 3 seconds to prevent blinking
+    
     const interval = setInterval(() => {
       refetch();
       setLastRefresh(new Date());
@@ -103,7 +105,7 @@ export const PriceAnalysisCard: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="1000">1s</SelectItem>
+                <SelectItem value="3000">3s</SelectItem>
                 <SelectItem value="5000">5s</SelectItem>
                 <SelectItem value="10000">10s</SelectItem>
                 <SelectItem value="30000">30s</SelectItem>

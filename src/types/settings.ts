@@ -133,6 +133,7 @@ export interface OtherTechnicalSettings {
     enabled: boolean;
     openingRangeMinutes: number;
   };
+  atrPeriod: number;
   reversalSettings: {
     enabled: boolean;
     lookbackPeriods: number;
