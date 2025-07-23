@@ -24,7 +24,7 @@ export const PriceAnalysisCard: React.FC = () => {
 
   // Auto-refresh with configurable interval - prevent excessive blinking
   useEffect(() => {
-    if (refreshInterval < 3000) return; // Minimum 3 seconds to prevent blinking
+    if (refreshInterval < 10000) return; // Minimum 10 seconds to prevent blinking
     
     const interval = setInterval(() => {
       refetch();
@@ -105,10 +105,10 @@ export const PriceAnalysisCard: React.FC = () => {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="3000">3s</SelectItem>
-                <SelectItem value="5000">5s</SelectItem>
                 <SelectItem value="10000">10s</SelectItem>
                 <SelectItem value="30000">30s</SelectItem>
+                <SelectItem value="60000">1m</SelectItem>
+                <SelectItem value="300000">5m</SelectItem>
               </SelectContent>
             </Select>
             <Button 

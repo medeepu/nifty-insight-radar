@@ -14,19 +14,40 @@ import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useSettingsStore } from '@/store/useSettingsStore';
 import { Badge } from '@/components/ui/badge';
+import { IndicatorSettings } from './IndicatorSettings';
+import { BrokerIntegrationPanel } from './BrokerIntegrationPanel';
 
 export const SettingsPanels: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
 
   return (
-    <Tabs defaultValue="core" className="w-full">
-      <TabsList className="grid w-full grid-cols-5">
-        <TabsTrigger value="core">Core</TabsTrigger>
-        <TabsTrigger value="greeks">Greeks</TabsTrigger>
-        <TabsTrigger value="display">Display</TabsTrigger>
-        <TabsTrigger value="risk">Risk</TabsTrigger>
-        <TabsTrigger value="broker">Broker</TabsTrigger>
-      </TabsList>
+    <div className="space-y-6">
+      {/* Save Settings Button */}
+      <div className="flex justify-between items-center">
+        <h2 className="text-lg font-semibold">Trading Configuration</h2>
+        <Button 
+          onClick={() => {
+            // Save settings to server
+            console.log('Saving settings...', settings);
+          }}
+          className="ml-auto"
+        >
+          Save Settings
+        </Button>
+      </div>
+
+      <Tabs defaultValue="core" className="w-full" orientation="vertical">
+        <div className="flex gap-6">
+          <TabsList className="flex flex-col h-fit w-48 space-y-1">
+            <TabsTrigger value="core" className="w-full justify-start">Core Trading</TabsTrigger>
+            <TabsTrigger value="greeks" className="w-full justify-start">Greeks</TabsTrigger>
+            <TabsTrigger value="indicators" className="w-full justify-start">Indicators</TabsTrigger>
+            <TabsTrigger value="display" className="w-full justify-start">Display</TabsTrigger>
+            <TabsTrigger value="risk" className="w-full justify-start">Risk Management</TabsTrigger>
+            <TabsTrigger value="broker" className="w-full justify-start">Broker Integration</TabsTrigger>
+          </TabsList>
+
+          <div className="flex-1">
 
       {/* Core Trading Settings */}
       <TabsContent value="core" className="space-y-6">
@@ -258,6 +279,11 @@ export const SettingsPanels: React.FC = () => {
             </div>
           </CardContent>
         </Card>
+      </TabsContent>
+
+      {/* Indicators Settings */}
+      <TabsContent value="indicators" className="space-y-6">
+        <IndicatorSettings />
       </TabsContent>
 
       {/* Display Settings */}
@@ -545,6 +571,14 @@ export const SettingsPanels: React.FC = () => {
           </CardContent>
         </Card>
       </TabsContent>
-    </Tabs>
+
+      {/* Broker Integration */}
+      <TabsContent value="broker" className="space-y-6">
+        <BrokerIntegrationPanel />
+      </TabsContent>
+          </div>
+        </div>
+      </Tabs>
+    </div>
   );
 };

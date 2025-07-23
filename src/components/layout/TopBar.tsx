@@ -5,6 +5,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Settings, Wifi, WifiOff, Menu } from 'lucide-react';
 import { useSettingsStore } from '../../store/useSettingsStore';
 import { useTradingStore } from '../../store/useTradingStore';
+import { ProfileMenu } from './ProfileMenu';
 
 interface TopBarProps {
   isConnected: boolean;
@@ -20,32 +21,12 @@ export const TopBar: React.FC<TopBarProps> = ({ isConnected, onReconnect }) => {
   return (
     <div className="h-14 bg-card flex items-center justify-between px-6">
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2">
-          <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
-            <SelectTrigger className="w-32 h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="NIFTY">NIFTY 50</SelectItem>
-              <SelectItem value="BANKNIFTY">BANKNIFTY</SelectItem>
-              <SelectItem value="FINNIFTY">FINNIFTY</SelectItem>
-            </SelectContent>
-          </Select>
-          <Select value={selectedTimeframe} onValueChange={setSelectedTimeframe}>
-            <SelectTrigger className="w-20 h-8">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {timeframes.map((tf) => (
-                <SelectItem key={tf} value={tf}>{tf}</SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        <h1 className="text-xl font-semibold">Nifty Options Trading</h1>
+        
         {currentSignal && (
-          <div className={`signal-badge-${currentSignal.signal.toLowerCase()}`}>
-            {currentSignal.signal}
-          </div>
+          <Badge variant={currentSignal.signal === 'BUY' ? 'default' : currentSignal.signal === 'SELL' ? 'destructive' : 'secondary'}>
+            {currentSignal.signal} Signal
+          </Badge>
         )}
       </div>
       
@@ -68,6 +49,8 @@ export const TopBar: React.FC<TopBarProps> = ({ isConnected, onReconnect }) => {
         >
           <Settings className="h-4 w-4" />
         </Button>
+        
+        <ProfileMenu />
       </div>
     </div>
   );

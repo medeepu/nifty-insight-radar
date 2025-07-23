@@ -210,6 +210,55 @@ export interface NotificationSettings {
   webhook?: string;
 }
 
+// Indicator Settings
+export interface IndicatorSettings {
+  cpr: {
+    enabled: boolean;
+    pivot: boolean;
+    bc: boolean;
+    tc: boolean;
+    r1: boolean;
+    r2: boolean;
+    r3: boolean;
+    s1: boolean;
+    s2: boolean;
+    s3: boolean;
+  };
+  pivots: {
+    daily: boolean;
+    weekly: boolean;
+    monthly: boolean;
+    r1: boolean;
+    r2: boolean;
+    r3: boolean;
+    s1: boolean;
+    s2: boolean;
+    s3: boolean;
+  };
+  ema: {
+    ema9: { enabled: boolean; color: string; };
+    ema21: { enabled: boolean; color: string; };
+    ema50: { enabled: boolean; color: string; };
+    ema200: { enabled: boolean; color: string; };
+  };
+  vwap: {
+    enabled: boolean;
+    color: string;
+  };
+  rsi: {
+    enabled: boolean;
+    period: number;
+    overbought: number;
+    oversold: number;
+  };
+  stochastic: {
+    enabled: boolean;
+    kPeriod: number;
+    dPeriod: number;
+    smooth: number;
+  };
+}
+
 // Complete Settings Interface
 export interface TradingSettings {
   core: CoreTradingSettings;
@@ -220,6 +269,7 @@ export interface TradingSettings {
   cprPivots: CPRPivotSettings;
   ema: EMASettings;
   technical: OtherTechnicalSettings;
+  indicators: IndicatorSettings;
   budgetRisk: BudgetRiskSettings;
   broker: BrokerSettings;
   chart: ChartSettings;
