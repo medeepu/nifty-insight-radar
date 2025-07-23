@@ -7,6 +7,7 @@ import React from 'react';
 import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Chart } from '../../store/useChartStore';
+import { useTradingStore } from '../../store/useTradingStore';
 
 interface InteractiveChartProps {
   chart?: Chart;
@@ -17,10 +18,11 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
   chart,
   onRemove,
 }) => {
+  const { selectedSymbol, selectedTimeframe } = useTradingStore();
 
   const defaultChart = {
-    symbol: 'NIFTY',
-    timeframe: '5m',
+    symbol: selectedSymbol,
+    timeframe: selectedTimeframe,
     id: 'default'
   };
 

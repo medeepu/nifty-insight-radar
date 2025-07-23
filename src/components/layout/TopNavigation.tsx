@@ -31,22 +31,8 @@ export const TopNavigation: React.FC<TopNavigationProps> = ({ isConnected }) => 
             <h1 className="text-lg font-bold text-foreground">DeepLab Trading</h1>
           </div>
 
-          {/* Symbol Selector, Connection Status and Settings */}
+          {/* Connection Status and Settings */}
           <div className="flex items-center gap-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm text-muted-foreground">Symbol:</span>
-              <Select value={selectedSymbol} onValueChange={setSelectedSymbol}>
-                <SelectTrigger className="w-32 h-8 bg-background">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent className="bg-background border">
-                  {symbols.map(symbol => (
-                    <SelectItem key={symbol} value={symbol}>{symbol}</SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
             <div className="flex items-center gap-2">
               {isConnected ? (
                 <Wifi className="h-4 w-4 text-bull-green" />
