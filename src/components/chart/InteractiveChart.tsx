@@ -9,7 +9,7 @@ import { Button } from '../ui/button';
 import { Chart } from '../../store/useChartStore';
 
 interface InteractiveChartProps {
-  chart: Chart;
+  chart?: Chart;
   onRemove?: () => void;
 }
 
@@ -18,46 +18,34 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
   onRemove,
 }) => {
 
+  const defaultChart = {
+    symbol: 'NIFTY',
+    timeframe: '5m',
+    id: 'default'
+  };
+
+  const activeChart = chart || defaultChart;
+
   return (
     <Card className="p-6">
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-xl font-bold">Chart: {chart.symbol} ({chart.timeframe})</h2>
+          <h2 className="text-xl font-bold">Chart: {activeChart.symbol} ({activeChart.timeframe})</h2>
           {onRemove && (
             <Button onClick={onRemove} variant="outline" size="sm">
               Remove Chart
             </Button>
           )}
         </div>
-        <div className="grid grid-cols-4 gap-4">
-          <div className="col-span-3">
-            <div className="h-96 bg-muted/10 border border-dashed rounded-lg flex items-center justify-center">
-              <div className="text-center space-y-2">
-                <p className="text-lg font-semibold">TradingView Lightweight Charts</p>
-                <p className="text-muted-foreground">
-                  Chart: {chart.symbol} ({chart.timeframe}) - Ready for data connection
-                </p>
-                <p className="text-sm text-muted-foreground">
-                  Features: Multi-timeframe, Technical indicators, Real-time updates
-                </p>
-              </div>
-            </div>
-          </div>
-          <div className="col-span-1">
-            <div className="h-96 overflow-y-auto">
-              {/* Chart Indicators Panel would go here */}
-              <div className="space-y-2">
-                <h3 className="font-semibold text-sm">Indicators</h3>
-                <div className="text-xs text-muted-foreground">
-                  • EMA 9, 21, 50, 200<br/>
-                  • VWAP<br/>
-                  • RSI (14)<br/>
-                  • CPR & Pivots<br/>
-                  • Bollinger Bands<br/>
-                  • Stochastic<br/>
-                </div>
-              </div>
-            </div>
+        <div className="h-96 bg-muted/10 border border-dashed rounded-lg flex items-center justify-center">
+          <div className="text-center space-y-2">
+            <p className="text-lg font-semibold">TradingView Lightweight Charts</p>
+            <p className="text-muted-foreground">
+              Chart: {activeChart.symbol} ({activeChart.timeframe}) - Ready for data connection
+            </p>
+            <p className="text-sm text-muted-foreground">
+              Features: Multi-timeframe, Technical indicators, Real-time updates
+            </p>
           </div>
         </div>
       </div>

@@ -90,11 +90,7 @@ export const TradingDashboard: React.FC = () => {
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-6">
             {/* Chart Section - Takes up 3 columns */}
             <div className="xl:col-span-3">
-              <TradingChart
-                symbol={selectedSymbol}
-                timeframe={selectedTimeframe}
-                height={600}
-              />
+              <TradingChart />
             </div>
             
             {/* Side Panel Cards - Takes up 1 column */}

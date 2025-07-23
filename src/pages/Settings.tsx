@@ -29,14 +29,7 @@ const Settings: React.FC = () => {
         </TabsList>
 
         <TabsContent value="trading">
-          <Card>
-            <CardHeader>
-              <CardTitle>Trading Configuration</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <SettingsPanels />
-            </CardContent>
-          </Card>
+          <SettingsPanels />
         </TabsContent>
 
         <TabsContent value="account" className="space-y-4">
