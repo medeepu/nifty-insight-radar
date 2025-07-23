@@ -75,7 +75,7 @@ export const SettingsPanels: React.FC = () => {
         </div>
 
         {/* Content Area */}
-        <div className="container mx-auto px-6 py-6">
+        <div className="container mx-auto px-6 py-6 pb-20">
 
       {/* Core Trading Settings */}
       <TabsContent value="core" className="space-y-6">
@@ -521,9 +521,9 @@ export const SettingsPanels: React.FC = () => {
         </div>
       </Tabs>
 
-      {/* Bottom Save Button - Fixed position */}
+      {/* Bottom Save Button - Positioned at bottom of content */}
       {showSaveButton && (
-        <div className="fixed bottom-6 right-6 z-50">
+        <div className="mt-8 flex justify-end">
           <Button 
             onClick={() => {
               // Save settings to server

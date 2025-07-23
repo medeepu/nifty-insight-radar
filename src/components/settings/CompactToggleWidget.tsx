@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Slider } from '@/components/ui/slider';
 
 interface ToggleItem {
   id: string;
@@ -14,6 +15,8 @@ interface ToggleItem {
   onColorChange?: (color: string) => void;
   lineStyle?: string;
   onLineStyleChange?: (style: string) => void;
+  thickness?: number;
+  onThicknessChange?: (thickness: number) => void;
 }
 
 interface CompactToggleWidgetProps {
@@ -60,36 +63,58 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
                 />
               </div>
               
-              {/* Color and Style controls */}
-              {item.checked && (item.onColorChange || item.onLineStyleChange) && (
-                <div className="flex items-center gap-2 mt-2">
+              {/* Color, Style and Thickness controls */}
+              {item.checked && (item.onColorChange || item.onLineStyleChange || item.onThicknessChange) && (
+                <div className="space-y-3 mt-3 pt-3 border-t border-border/40">
+                  {/* Color Picker */}
                   {item.onColorChange && (
-                    <div className="flex items-center gap-1">
-                      <input
-                        type="color"
-                        value={item.color || '#3b82f6'}
-                        onChange={(e) => item.onColorChange!(e.target.value)}
-                        className="w-6 h-6 border border-border rounded cursor-pointer"
-                      />
+                    <div className="flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">Color</span>
+                      <div className="flex items-center gap-2">
+                        <input
+                          type="color"
+                          value={item.color || '#3b82f6'}
+                          onChange={(e) => item.onColorChange!(e.target.value)}
+                          className="w-8 h-6 border border-border rounded cursor-pointer"
+                        />
+                        <span className="text-xs font-mono w-16">{item.color || '#3b82f6'}</span>
+                      </div>
                     </div>
                   )}
                   
+                  {/* Line Style */}
                   {item.onLineStyleChange && (
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Style</span>
                       <Select value={item.lineStyle || 'solid'} onValueChange={item.onLineStyleChange}>
-                        <SelectTrigger className="w-20 h-6 text-xs">
+                        <SelectTrigger className="w-24 h-7 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="solid">━━━</SelectItem>
-                          <SelectItem value="dashed">⋯⋯⋯</SelectItem>
-                          <SelectItem value="dotted">•••</SelectItem>
-                          <SelectItem value="thick">━━━</SelectItem>
-                          <SelectItem value="thin">───</SelectItem>
+                          <SelectItem value="solid">Solid</SelectItem>
+                          <SelectItem value="dashed">Dashed</SelectItem>
+                          <SelectItem value="dotted">Dotted</SelectItem>
+                          <SelectItem value="dash-dot">Dash-Dot</SelectItem>
                         </SelectContent>
                       </Select>
-                      <span className="text-xs text-muted-foreground">Style</span>
+                    </div>
+                  )}
+                  
+                  {/* Line Thickness */}
+                  {item.onThicknessChange && (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">Thickness</span>
+                      <div className="flex items-center gap-2 w-24">
+                        <Slider
+                          value={[item.thickness || 1]}
+                          onValueChange={([value]) => item.onThicknessChange!(value)}
+                          min={1}
+                          max={5}
+                          step={1}
+                          className="flex-1"
+                        />
+                        <span className="text-xs w-4">{item.thickness || 1}</span>
+                      </div>
                     </div>
                   )}
                 </div>

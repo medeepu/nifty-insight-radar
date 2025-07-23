@@ -24,90 +24,108 @@ export const IndicatorSettings: React.FC = () => {
       label: 'Central Pivot (P)',
       checked: settings.indicators.cpr.pivot,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.pivot', checked),
-      color: settings.cprPivots.lineStyles.cpr.color,
+      color: '#fbbf24',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.cpr.color', color),
       lineStyle: settings.cprPivots.lineStyles.cpr.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.cpr.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.cpr.style', style),
+      thickness: settings.cprPivots.lineStyles.cpr.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.cpr.width', thickness)
     },
     {
       id: 'cpr-bc',
       label: 'Bottom Central (BC)',
       checked: settings.indicators.cpr.bc,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.bc', checked),
-      color: settings.cprPivots.lineStyles.cpr.color,
+      color: '#3b82f6',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.cpr.color', color),
       lineStyle: settings.cprPivots.lineStyles.cpr.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.cpr.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.cpr.style', style),
+      thickness: settings.cprPivots.lineStyles.cpr.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.cpr.width', thickness)
     },
     {
       id: 'cpr-tc',
       label: 'Top Central (TC)',
       checked: settings.indicators.cpr.tc,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.tc', checked),
-      color: settings.cprPivots.lineStyles.cpr.color,
+      color: '#3b82f6',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.cpr.color', color),
       lineStyle: settings.cprPivots.lineStyles.cpr.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.cpr.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.cpr.style', style),
+      thickness: settings.cprPivots.lineStyles.cpr.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.cpr.width', thickness)
     },
     {
       id: 'cpr-r1',
       label: 'Resistance 1 (R1)',
       checked: settings.indicators.cpr.r1,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.r1', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#ef4444',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     },
     {
       id: 'cpr-r2',
       label: 'Resistance 2 (R2)',
       checked: settings.indicators.cpr.r2,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.r2', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#dc2626',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     },
     {
       id: 'cpr-r3',
       label: 'Resistance 3 (R3)',
       checked: settings.indicators.cpr.r3,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.r3', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#b91c1c',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     },
     {
       id: 'cpr-s1',
       label: 'Support 1 (S1)',
       checked: settings.indicators.cpr.s1,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.s1', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#22c55e',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     },
     {
       id: 'cpr-s2',
       label: 'Support 2 (S2)',
       checked: settings.indicators.cpr.s2,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.s2', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#16a34a',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     },
     {
       id: 'cpr-s3',
       label: 'Support 3 (S3)',
       checked: settings.indicators.cpr.s3,
       onChange: (checked: boolean) => updateSettings('indicators.cpr.s3', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#15803d',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     }
   ];
 
@@ -119,10 +137,12 @@ export const IndicatorSettings: React.FC = () => {
       description: 'Show weekly pivot levels',
       checked: settings.cprPivots.showWeeklyPivots,
       onChange: (checked: boolean) => updateSettings('cprPivots.showWeeklyPivots', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#8b5cf6',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     },
     {
       id: 'monthly-pivots',
@@ -130,10 +150,12 @@ export const IndicatorSettings: React.FC = () => {
       description: 'Show monthly pivot levels',
       checked: settings.cprPivots.showMonthlyPivots,
       onChange: (checked: boolean) => updateSettings('cprPivots.showMonthlyPivots', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#f59e0b',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     },
     {
       id: 'pdh-pdl',
@@ -141,10 +163,12 @@ export const IndicatorSettings: React.FC = () => {
       description: 'Previous Day High/Low levels',
       checked: settings.cprPivots.showPDH_PDL,
       onChange: (checked: boolean) => updateSettings('cprPivots.showPDH_PDL', checked),
-      color: settings.cprPivots.lineStyles.pivots.color,
+      color: '#06b6d4',
       onColorChange: (color: string) => updateSettings('cprPivots.lineStyles.pivots.color', color),
       lineStyle: settings.cprPivots.lineStyles.pivots.style,
-      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style)
+      onLineStyleChange: (style: string) => updateSettings('cprPivots.lineStyles.pivots.style', style),
+      thickness: settings.cprPivots.lineStyles.pivots.width,
+      onThicknessChange: (thickness: number) => updateSettings('cprPivots.lineStyles.pivots.width', thickness)
     }
   ];
 
@@ -158,7 +182,9 @@ export const IndicatorSettings: React.FC = () => {
       color: settings.indicators.ema.ema9.color,
       onColorChange: (color: string) => updateSettings('indicators.ema.ema9.color', color),
       lineStyle: 'solid',
-      onLineStyleChange: () => {}
+      onLineStyleChange: () => {},
+      thickness: 2,
+      onThicknessChange: () => {}
     },
     {
       id: 'ema-21',
@@ -168,7 +194,9 @@ export const IndicatorSettings: React.FC = () => {
       color: settings.indicators.ema.ema21.color,
       onColorChange: (color: string) => updateSettings('indicators.ema.ema21.color', color),
       lineStyle: 'solid',
-      onLineStyleChange: () => {}
+      onLineStyleChange: () => {},
+      thickness: 2,
+      onThicknessChange: () => {}
     },
     {
       id: 'ema-50',
@@ -178,7 +206,9 @@ export const IndicatorSettings: React.FC = () => {
       color: settings.indicators.ema.ema50.color,
       onColorChange: (color: string) => updateSettings('indicators.ema.ema50.color', color),
       lineStyle: 'solid',
-      onLineStyleChange: () => {}
+      onLineStyleChange: () => {},
+      thickness: 2,
+      onThicknessChange: () => {}
     },
     {
       id: 'ema-200',
@@ -188,7 +218,9 @@ export const IndicatorSettings: React.FC = () => {
       color: settings.indicators.ema.ema200.color,
       onColorChange: (color: string) => updateSettings('indicators.ema.ema200.color', color),
       lineStyle: 'solid',
-      onLineStyleChange: () => {}
+      onLineStyleChange: () => {},
+      thickness: 2,
+      onThicknessChange: () => {}
     }
   ];
 
@@ -203,7 +235,9 @@ export const IndicatorSettings: React.FC = () => {
       color: '#f59e0b',
       onColorChange: () => {},
       lineStyle: 'solid',
-      onLineStyleChange: () => {}
+      onLineStyleChange: () => {},
+      thickness: 2,
+      onThicknessChange: () => {}
     },
     {
       id: 'stochastic-enabled',
@@ -214,7 +248,9 @@ export const IndicatorSettings: React.FC = () => {
       color: '#8b5cf6',
       onColorChange: () => {},
       lineStyle: 'solid',
-      onLineStyleChange: () => {}
+      onLineStyleChange: () => {},
+      thickness: 2,
+      onThicknessChange: () => {}
     },
     {
       id: 'vwap-enabled',
@@ -225,7 +261,9 @@ export const IndicatorSettings: React.FC = () => {
       color: settings.indicators.vwap.color,
       onColorChange: (color: string) => updateSettings('indicators.vwap.color', color),
       lineStyle: 'dashed',
-      onLineStyleChange: () => {}
+      onLineStyleChange: () => {},
+      thickness: 2,
+      onThicknessChange: () => {}
     }
   ];
 
