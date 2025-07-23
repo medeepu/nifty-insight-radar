@@ -13,11 +13,6 @@ import { SettingsPanels } from '@/components/settings/SettingsPanels';
 const Settings: React.FC = () => {
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <SettingsIcon className="w-6 h-6" />
-        <h1 className="text-2xl font-bold">Settings</h1>
-      </div>
-
       <Tabs defaultValue="trading" className="space-y-4">
         <TabsList className="grid w-full grid-cols-6">
           <TabsTrigger value="trading">Trading</TabsTrigger>

@@ -19,33 +19,32 @@ import { BrokerIntegrationPanel } from './BrokerIntegrationPanel';
 
 export const SettingsPanels: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
+  const [activeTab, setActiveTab] = React.useState("core");
+
+  // Tabs that need save buttons (form inputs)
+  const tabsWithSave = ["core", "parameters", "greeks", "risk", "broker"];
+  const showSaveButton = tabsWithSave.includes(activeTab);
 
   return (
     <div className="min-h-screen bg-background">
-      <Tabs defaultValue="core" className="w-full">
+      <Tabs defaultValue="core" className="w-full" onValueChange={setActiveTab}>
         {/* Integrated Header with Navigation */}
         <div className="border-b border-border/40 bg-card/30 backdrop-blur-sm">
           <div className="container mx-auto px-6 py-6">
-            <div className="flex items-start justify-between mb-6">
-              <div>
-                <h1 className="text-2xl font-semibold text-foreground">
-                  Settings
-                </h1>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Configure your trading parameters and preferences
-                </p>
+            {showSaveButton && (
+              <div className="flex justify-end mb-6">
+                <Button 
+                  onClick={() => {
+                    // Save settings to server
+                    console.log('Saving settings...', settings);
+                  }}
+                  size="sm"
+                  className="h-9"
+                >
+                  Save Changes
+                </Button>
               </div>
-              <Button 
-                onClick={() => {
-                  // Save settings to server
-                  console.log('Saving settings...', settings);
-                }}
-                size="sm"
-                className="h-9"
-              >
-                Save Changes
-              </Button>
-            </div>
+            )}
             
             {/* Horizontal Navigation */}
             <TabsList className="grid w-full grid-cols-7 bg-muted/50 h-auto p-1">
