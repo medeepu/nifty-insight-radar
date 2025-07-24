@@ -136,6 +136,45 @@ export const IndicatorSettings: React.FC = () => {
       thickness: settings.indicators.cpr.s3.thickness,
       onThicknessChange: (thickness: number) => updateSettings('indicators.cpr.s3.thickness', thickness)
     }
+    {
+      id: 'pivots-daily',
+      label: 'Daily Pivots',
+      checked: settings.indicators.pivots.daily.enabled,
+      onChange: (checked: boolean) => updateSettings('indicators.pivots.daily.enabled', checked),
+      disabled: !settings.indicators.cpr.enabled,
+      color: settings.indicators.pivots.daily.color,
+      onColorChange: (color: string) => updateSettings('indicators.pivots.daily.color', color),
+      lineStyle: settings.indicators.pivots.daily.style,
+      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.daily.style', style),
+      thickness: settings.indicators.pivots.daily.thickness,
+      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.daily.thickness', thickness)
+    },
+    {
+      id: 'pivots-weekly',
+      label: 'Weekly Pivots',
+      checked: settings.indicators.pivots.weekly.enabled,
+      onChange: (checked: boolean) => updateSettings('indicators.pivots.weekly.enabled', checked),
+      disabled: !settings.indicators.cpr.enabled,
+      color: settings.indicators.pivots.weekly.color,
+      onColorChange: (color: string) => updateSettings('indicators.pivots.weekly.color', color),
+      lineStyle: settings.indicators.pivots.weekly.style,
+      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.weekly.style', style),
+      thickness: settings.indicators.pivots.weekly.thickness,
+      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.weekly.thickness', thickness)
+    },
+    {
+      id: 'pivots-monthly',
+      label: 'Monthly Pivots',
+      checked: settings.indicators.pivots.monthly.enabled,
+      onChange: (checked: boolean) => updateSettings('indicators.pivots.monthly.enabled', checked),
+      disabled: !settings.indicators.cpr.enabled,
+      color: settings.indicators.pivots.monthly.color,
+      onColorChange: (color: string) => updateSettings('indicators.pivots.monthly.color', color),
+      lineStyle: settings.indicators.pivots.monthly.style,
+      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.monthly.style', style),
+      thickness: settings.indicators.pivots.monthly.thickness,
+      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.monthly.thickness', thickness)
+    },  
   ];
 
   // EMA Toggle Items with individual styling
@@ -187,118 +226,6 @@ export const IndicatorSettings: React.FC = () => {
       onLineStyleChange: (style: string) => updateSettings('indicators.ema.ema200.style', style),
       thickness: settings.indicators.ema.ema200.thickness,
       onThicknessChange: (thickness: number) => updateSettings('indicators.ema.ema200.thickness', thickness)
-    }
-  ];
-
-  // Pivot Points with individual styling
-  const pivotItems = [
-    {
-      id: 'pivots-daily',
-      label: 'Daily Pivots',
-      checked: settings.indicators.pivots.daily.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.daily.enabled', checked),
-      color: settings.indicators.pivots.daily.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.daily.color', color),
-      lineStyle: settings.indicators.pivots.daily.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.daily.style', style),
-      thickness: settings.indicators.pivots.daily.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.daily.thickness', thickness)
-    },
-    {
-      id: 'pivots-weekly',
-      label: 'Weekly Pivots',
-      checked: settings.indicators.pivots.weekly.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.weekly.enabled', checked),
-      color: settings.indicators.pivots.weekly.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.weekly.color', color),
-      lineStyle: settings.indicators.pivots.weekly.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.weekly.style', style),
-      thickness: settings.indicators.pivots.weekly.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.weekly.thickness', thickness)
-    },
-    {
-      id: 'pivots-monthly',
-      label: 'Monthly Pivots',
-      checked: settings.indicators.pivots.monthly.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.monthly.enabled', checked),
-      color: settings.indicators.pivots.monthly.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.monthly.color', color),
-      lineStyle: settings.indicators.pivots.monthly.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.monthly.style', style),
-      thickness: settings.indicators.pivots.monthly.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.monthly.thickness', thickness)
-    },
-    {
-      id: 'pivots-r1',
-      label: 'Resistance 1 (R1)',
-      checked: settings.indicators.pivots.r1.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.r1.enabled', checked),
-      color: settings.indicators.pivots.r1.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.r1.color', color),
-      lineStyle: settings.indicators.pivots.r1.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.r1.style', style),
-      thickness: settings.indicators.pivots.r1.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.r1.thickness', thickness)
-    },
-    {
-      id: 'pivots-r2',
-      label: 'Resistance 2 (R2)',
-      checked: settings.indicators.pivots.r2.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.r2.enabled', checked),
-      color: settings.indicators.pivots.r2.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.r2.color', color),
-      lineStyle: settings.indicators.pivots.r2.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.r2.style', style),
-      thickness: settings.indicators.pivots.r2.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.r2.thickness', thickness)
-    },
-    {
-      id: 'pivots-r3',
-      label: 'Resistance 3 (R3)',
-      checked: settings.indicators.pivots.r3.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.r3.enabled', checked),
-      color: settings.indicators.pivots.r3.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.r3.color', color),
-      lineStyle: settings.indicators.pivots.r3.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.r3.style', style),
-      thickness: settings.indicators.pivots.r3.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.r3.thickness', thickness)
-    },
-    {
-      id: 'pivots-s1',
-      label: 'Support 1 (S1)',
-      checked: settings.indicators.pivots.s1.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.s1.enabled', checked),
-      color: settings.indicators.pivots.s1.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.s1.color', color),
-      lineStyle: settings.indicators.pivots.s1.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.s1.style', style),
-      thickness: settings.indicators.pivots.s1.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.s1.thickness', thickness)
-    },
-    {
-      id: 'pivots-s2',
-      label: 'Support 2 (S2)',
-      checked: settings.indicators.pivots.s2.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.s2.enabled', checked),
-      color: settings.indicators.pivots.s2.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.s2.color', color),
-      lineStyle: settings.indicators.pivots.s2.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.s2.style', style),
-      thickness: settings.indicators.pivots.s2.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.s2.thickness', thickness)
-    },
-    {
-      id: 'pivots-s3',
-      label: 'Support 3 (S3)',
-      checked: settings.indicators.pivots.s3.enabled,
-      onChange: (checked: boolean) => updateSettings('indicators.pivots.s3.enabled', checked),
-      color: settings.indicators.pivots.s3.color,
-      onColorChange: (color: string) => updateSettings('indicators.pivots.s3.color', color),
-      lineStyle: settings.indicators.pivots.s3.style,
-      onLineStyleChange: (style: string) => updateSettings('indicators.pivots.s3.style', style),
-      thickness: settings.indicators.pivots.s3.thickness,
-      onThicknessChange: (thickness: number) => updateSettings('indicators.pivots.s3.thickness', thickness)
     }
   ];
 
@@ -372,13 +299,6 @@ export const IndicatorSettings: React.FC = () => {
         title="CPR & Pivots"
         icon={<TrendingUp className="w-4 h-4" />}
         items={cprItems}
-        columns={2}
-      />
-
-      <CompactToggleWidget
-        title="Pivot Points"
-        icon={<BarChart3 className="w-4 h-4" />}
-        items={pivotItems}
         columns={2}
       />
 
