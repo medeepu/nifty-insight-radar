@@ -135,7 +135,7 @@ export const IndicatorSettings: React.FC = () => {
       onLineStyleChange: (style: string) => updateSettings('indicators.cpr.s3.style', style),
       thickness: settings.indicators.cpr.s3.thickness,
       onThicknessChange: (thickness: number) => updateSettings('indicators.cpr.s3.thickness', thickness)
-    }
+    },
     {
       id: 'pivots-daily',
       label: 'Daily Pivots',
