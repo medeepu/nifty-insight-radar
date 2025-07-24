@@ -45,7 +45,9 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
               key={item.id}
               className="p-3 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors"
             >
-              <div className="flex items-center justify-between mb-2">
+              {/* Single-line layout for label and all controls */}
+              <div className="flex items-center">
+                {/* Label (takes up remaining space) */}
                 <div className="flex-1 min-w-0">
                   <Label htmlFor={item.id} className="text-xs font-medium cursor-pointer">
                     {item.label}
@@ -56,65 +58,62 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
                     </p>
                   )}
                 </div>
-                <Switch
-                  id={item.id}
-                  checked={item.checked}
-                  onCheckedChange={item.onChange}
-                />
-              </div>
-              
-              {/* Compact Style Controls */}
-              {item.checked && (item.onColorChange || item.onLineStyleChange || item.onThicknessChange) && (
-                <div className="mt-3 pt-3 border-t border-border/40">
-                  <div className="flex items-center gap-2">
-                    {/* Color */}
-                    {item.onColorChange && (
-                      <input
-                        type="color"
-                        value={item.color || '#3b82f6'}
-                        onChange={(e) => item.onColorChange!(e.target.value)}
-                        className="w-5 h-5 border border-border rounded cursor-pointer"
+                {/* Controls: Color picker, Line style, Thickness slider, Toggle */}
+                <div className="flex items-center gap-2">
+                  {item.onColorChange && (
+                    <input
+                      type="color"
+                      value={item.color || '#3b82f6'}
+                      onChange={(e) => item.onColorChange!(e.target.value)}
+                      className="w-5 h-5 border border-border rounded cursor-pointer"
+                      disabled={!item.checked}
+                    />
+                  )}
+                  {item.onLineStyleChange && (
+                    <Select 
+                      value={item.lineStyle || 'solid'} 
+                      onValueChange={item.onLineStyleChange}
+                    >
+                      <SelectTrigger className="w-16 h-5 text-xs" disabled={!item.checked}>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="solid">━━━</SelectItem>
+                        <SelectItem value="dashed">╌╌╌</SelectItem>
+                        <SelectItem value="dotted">┈┈┈</SelectItem>
+                        <SelectItem value="dash-dot">╌•╌</SelectItem>
+                        <SelectItem value="circles">●●●</SelectItem>
+                        <SelectItem value="triangles">▲▲▲</SelectItem>
+                        <SelectItem value="squares">■■■</SelectItem>
+                        <SelectItem value="diamonds">♦♦♦</SelectItem>
+                        <SelectItem value="stars">★★★</SelectItem>
+                        <SelectItem value="crosses">✕✕✕</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+                  {item.onThicknessChange && (
+                    <div className="flex items-center gap-1 w-12">
+                      <Slider
+                        value={[item.thickness || 1]}
+                        onValueChange={([value]) => item.onThicknessChange!(value)}
+                        min={1}
+                        max={5}
+                        step={1}
+                        className="w-8"
+                        disabled={!item.checked}
                       />
-                    )}
-                    
-                    {/* Style */}
-                    {item.onLineStyleChange && (
-                      <Select value={item.lineStyle || 'solid'} onValueChange={item.onLineStyleChange}>
-                        <SelectTrigger className="w-16 h-5 text-xs">
-                          <SelectValue />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="solid">━━━</SelectItem>
-                          <SelectItem value="dashed">╌╌╌</SelectItem>
-                          <SelectItem value="dotted">┈┈┈</SelectItem>
-                          <SelectItem value="dash-dot">╌•╌</SelectItem>
-                          <SelectItem value="circles">●●●</SelectItem>
-                          <SelectItem value="triangles">▲▲▲</SelectItem>
-                          <SelectItem value="squares">■■■</SelectItem>
-                          <SelectItem value="diamonds">♦♦♦</SelectItem>
-                          <SelectItem value="stars">★★★</SelectItem>
-                          <SelectItem value="crosses">✕✕✕</SelectItem>
-                        </SelectContent>
-                      </Select>
-                    )}
-                    
-                    {/* Thickness */}
-                    {item.onThicknessChange && (
-                      <div className="flex items-center gap-1 w-12">
-                        <Slider
-                          value={[item.thickness || 1]}
-                          onValueChange={([value]) => item.onThicknessChange!(value)}
-                          min={1}
-                          max={5}
-                          step={1}
-                          className="w-8"
-                        />
-                        <span className="text-xs w-2">{item.thickness || 1}</span>
-                      </div>
-                    )}
-                  </div>
+                      <span className="text-xs w-2">
+                        {item.thickness || 1}
+                      </span>
+                    </div>
+                  )}
+                  <Switch
+                    id={item.id}
+                    checked={item.checked}
+                    onCheckedChange={item.onChange}
+                  />
                 </div>
-              )}
+              </div>
             </div>
           ))}
         </div>
