@@ -519,8 +519,8 @@ export const SettingsPanels: React.FC = () => {
         </div>
       </Tabs>
 
-      {/* Bottom Save Button - Positioned at bottom of content */}
-      {showSaveButton && (
+{/* Bottom Save Button - Positioned at bottom of content */}
+{showSaveButton && (
   <div className="container mx-auto px-6 pb-6">
     <div className="mt-8 flex justify-end">
       <Button 
