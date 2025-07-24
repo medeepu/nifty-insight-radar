@@ -17,6 +17,7 @@ interface ToggleItem {
   onLineStyleChange?: (style: string) => void;
   thickness?: number;
   onThicknessChange?: (thickness: number) => void;
+  disabled?: boolean;
 }
 
 interface CompactToggleWidgetProps {
@@ -66,7 +67,7 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
                       value={item.color || '#3b82f6'}
                       onChange={(e) => item.onColorChange!(e.target.value)}
                       className="w-5 h-5 border border-border rounded cursor-pointer"
-                      disabled={!item.checked}
+                      disabled={!item.checked || item.disabled}
                     />
                   )}
                   {item.onLineStyleChange && (
@@ -74,7 +75,7 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
                       value={item.lineStyle || 'solid'} 
                       onValueChange={item.onLineStyleChange}
                     >
-                      <SelectTrigger className="w-16 h-5 text-xs" disabled={!item.checked}>
+                      <SelectTrigger className="w-16 h-5 text-xs" disabled={!item.checked || item.disabled}>
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -100,7 +101,7 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
                         max={5}
                         step={1}
                         className="w-8"
-                        disabled={!item.checked}
+                        disabled={!item.checked || item.disabled}
                       />
                       <span className="text-xs w-2">
                         {item.thickness || 1}
@@ -111,6 +112,7 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
                     id={item.id}
                     checked={item.checked}
                     onCheckedChange={item.onChange}
+                    disabled={item.disabled}
                   />
                 </div>
               </div>
