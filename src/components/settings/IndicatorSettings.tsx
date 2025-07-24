@@ -334,25 +334,25 @@ export const IndicatorSettings: React.FC = () => {
     {
       id: 'pdh',
       label: 'Previous Day High',
-      checked: settings.indicators.previousDayHL.high.enabled,
+      checked: settings.indicators.previousDayHL?.high?.enabled || false,
       onChange: (checked: boolean) => updateSettings('indicators.previousDayHL.high.enabled', checked),
-      color: settings.indicators.previousDayHL.high.color,
+      color: settings.indicators.previousDayHL?.high?.color || '#ff4444',
       onColorChange: (color: string) => updateSettings('indicators.previousDayHL.high.color', color),
-      lineStyle: settings.indicators.previousDayHL.high.style,
+      lineStyle: settings.indicators.previousDayHL?.high?.style || 'solid',
       onLineStyleChange: (style: string) => updateSettings('indicators.previousDayHL.high.style', style),
-      thickness: settings.indicators.previousDayHL.high.thickness,
+      thickness: settings.indicators.previousDayHL?.high?.thickness || 1,
       onThicknessChange: (thickness: number) => updateSettings('indicators.previousDayHL.high.thickness', thickness)
     },
     {
       id: 'pdl',
       label: 'Previous Day Low',
-      checked: settings.indicators.previousDayHL.low.enabled,
+      checked: settings.indicators.previousDayHL?.low?.enabled || false,
       onChange: (checked: boolean) => updateSettings('indicators.previousDayHL.low.enabled', checked),
-      color: settings.indicators.previousDayHL.low.color,
+      color: settings.indicators.previousDayHL?.low?.color || '#44ff44',
       onColorChange: (color: string) => updateSettings('indicators.previousDayHL.low.color', color),
-      lineStyle: settings.indicators.previousDayHL.low.style,
+      lineStyle: settings.indicators.previousDayHL?.low?.style || 'solid',
       onLineStyleChange: (style: string) => updateSettings('indicators.previousDayHL.low.style', style),
-      thickness: settings.indicators.previousDayHL.low.thickness,
+      thickness: settings.indicators.previousDayHL?.low?.thickness || 1,
       onThicknessChange: (thickness: number) => updateSettings('indicators.previousDayHL.low.thickness', thickness)
     }
   ];
