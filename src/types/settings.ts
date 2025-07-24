@@ -5,15 +5,17 @@
 
 // Core Trading Settings
 export interface CoreTradingSettings {
-  strikeSelectionMode: 'CLOSEST_ATM' | 'ITM_PLUS_100' | 'OTM_MINUS_100' | 'MANUAL' | 'TICKER';
-  tradeDirection: 'AUTO' | 'BUY' | 'SELL';
+  strikeSelectionMode: 'closest_atm' | 'itm_100' | 'otm_100' | 'manual' | 'ticker';
+  tradeDirection: 'auto' | 'buy' | 'sell';
   riskRewardRatio: number;
   scenarioOverride?: string;
+  tickerSymbol?: string;
+  tickerFormat?: 'tradingview' | 'nse';
 }
 
 // Manual Option Trade Settings
 export interface ManualOptionSettings {
-  optionType: 'CALL' | 'PUT';
+  optionType: 'call' | 'put';
   strike: number;
   optionLTP: number;
   expiry: {

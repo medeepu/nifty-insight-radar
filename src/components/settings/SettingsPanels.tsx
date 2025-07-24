@@ -21,7 +21,7 @@ export const SettingsPanels: React.FC = () => {
   const { settings, updateSettings } = useSettingsStore();
   const [activeTab, setActiveTab] = React.useState("core");
 
-  // Tabs that need save buttons (form inputs)
+  // Tabs that need save buttons (form inputs) - broker excluded as it has its own save button
   const tabsWithSave = ["core", "parameters", "greeks", "risk"];
   const showSaveButton = tabsWithSave.includes(activeTab);
 
@@ -139,50 +139,106 @@ export const SettingsPanels: React.FC = () => {
           </CardContent>
         </Card>
 
-        <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
-          <CardHeader className="bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-t-lg">
-            <CardTitle className="text-xl font-semibold">Manual Option Configuration</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="option-type">Option Type</Label>
-                <Select 
-                  value={settings.manual.optionType} 
-                  onValueChange={(value) => updateSettings('manual.optionType', value)}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="call">Call</SelectItem>
-                    <SelectItem value="put">Put</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
+        {/* Conditional Manual Settings */}
+        {(settings.core.strikeSelectionMode === 'manual' || settings.core.strikeSelectionMode === 'ticker') && (
+          <Card className="bg-card/50 backdrop-blur-sm border shadow-lg">
+            <CardHeader className="bg-gradient-to-r from-secondary/10 to-secondary/5 rounded-t-lg">
+              <CardTitle className="text-xl font-semibold">
+                {settings.core.strikeSelectionMode === 'manual' ? 'Manual Option Configuration' : 'Ticker Configuration'}
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {settings.core.strikeSelectionMode === 'manual' ? (
+                <>
+                  <div className="grid grid-cols-3 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="option-type">Option Type</Label>
+                      <Select 
+                        value={settings.manual.optionType} 
+                        onValueChange={(value) => updateSettings('manual.optionType', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="call">Call</SelectItem>
+                          <SelectItem value="put">Put</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="strike">Strike Price</Label>
-                <Input
-                  type="number"
-                  value={settings.manual.strike}
-                  onChange={(e) => updateSettings('manual.strike', parseFloat(e.target.value))}
-                  placeholder="Strike"
-                />
-              </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="strike">Strike Price</Label>
+                      <Input
+                        type="number"
+                        value={settings.manual.strike}
+                        onChange={(e) => updateSettings('manual.strike', parseFloat(e.target.value))}
+                        placeholder="Strike"
+                      />
+                    </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="option-ltp">Option LTP</Label>
-                <Input
-                  type="number"
-                  value={settings.manual.optionLTP}
-                  onChange={(e) => updateSettings('manual.optionLTP', parseFloat(e.target.value))}
-                  placeholder="LTP"
-                />
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+                    <div className="space-y-2">
+                      <Label htmlFor="option-ltp">Option LTP</Label>
+                      <Input
+                        type="number"
+                        value={settings.manual.optionLTP}
+                        onChange={(e) => updateSettings('manual.optionLTP', parseFloat(e.target.value))}
+                        placeholder="LTP"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="expiry-date">Expiry Date</Label>
+                    <Input
+                      type="date"
+                      value={`${settings.manual.expiry.year}-${String(settings.manual.expiry.month).padStart(2, '0')}-${String(settings.manual.expiry.day).padStart(2, '0')}`}
+                      onChange={(e) => {
+                        const date = new Date(e.target.value);
+                        updateSettings('manual.expiry', {
+                          day: date.getDate(),
+                          month: date.getMonth() + 1,
+                          year: date.getFullYear()
+                        });
+                      }}
+                    />
+                  </div>
+                </>
+              ) : (
+                <div className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="ticker-symbol">Option Ticker Symbol</Label>
+                    <Input
+                      type="text"
+                      value={settings.core.tickerSymbol || ''}
+                      onChange={(e) => updateSettings('core.tickerSymbol', e.target.value)}
+                      placeholder="NIFTY25JAN24000CE (TradingView) or NIFTY2502524000CE (NSE)"
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      TradingView format: NIFTYYYMMDDC24000 | NSE format: NIFTY25JAN24000CE
+                    </p>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="ticker-format">Ticker Format</Label>
+                    <Select 
+                      value={settings.core.tickerFormat || 'tradingview'} 
+                      onValueChange={(value) => updateSettings('core.tickerFormat', value)}
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="tradingview">TradingView Format</SelectItem>
+                        <SelectItem value="nse">NSE Format</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        )}
       </TabsContent>
 
       {/* Technical Parameters */}
@@ -452,64 +508,6 @@ export const SettingsPanels: React.FC = () => {
                 </SelectContent>
               </Select>
             </div>
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardHeader>
-            <CardTitle>Broker Integration</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="space-y-2">
-              <Label htmlFor="selected-broker">Selected Broker</Label>
-              <Select 
-                value={settings.broker.selectedBroker} 
-                onValueChange={(value) => updateSettings('broker.selectedBroker', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="zerodha">Zerodha</SelectItem>
-                  <SelectItem value="dhan">Dhan</SelectItem>
-                  <SelectItem value="angel">Angel One</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="api-key">API Key</Label>
-                <Input
-                  type="password"
-                  value={settings.broker.credentials.zerodha?.apiKey || ''}
-                  onChange={(e) => updateSettings('broker.credentials.zerodha.apiKey', e.target.value)}
-                  placeholder="Enter API Key"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="api-secret">API Secret</Label>
-                <Input
-                  type="password"
-                  value={settings.broker.credentials.zerodha?.apiSecret || ''}
-                  onChange={(e) => updateSettings('broker.credentials.zerodha.apiSecret', e.target.value)}
-                  placeholder="Enter API Secret"
-                />
-              </div>
-            </div>
-
-            <div className="flex items-center justify-between">
-              <Label htmlFor="auto-trade">Enable Auto Trading</Label>
-              <Switch
-                checked={settings.broker.autoTrade}
-                onCheckedChange={(checked) => updateSettings('broker.autoTrade', checked)}
-              />
-            </div>
-
-            <Button className="w-full" variant="outline">
-              Test Connection
-            </Button>
           </CardContent>
         </Card>
       </TabsContent>

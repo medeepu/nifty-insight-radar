@@ -14,7 +14,7 @@ export const OptionParamsCard: React.FC = () => {
   const { manual } = settings;
 
   const getOptionTypeVariant = () => {
-    return manual.optionType === 'CALL' ? 'default' : 'destructive';
+    return manual.optionType === 'call' ? 'default' : 'destructive';
   };
 
   const formatExpiry = () => {

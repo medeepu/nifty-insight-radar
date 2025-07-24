@@ -40,12 +40,12 @@ interface SettingsStore {
 // Default Settings Configuration
 const DEFAULT_SETTINGS: TradingSettings = {
   core: {
-    strikeSelectionMode: 'CLOSEST_ATM',
-    tradeDirection: 'AUTO',
+    strikeSelectionMode: 'closest_atm',
+    tradeDirection: 'auto',
     riskRewardRatio: 2.0,
   },
   manual: {
-    optionType: 'CALL',
+    optionType: 'call',
     strike: 0,
     optionLTP: 0,
     expiry: {
