@@ -521,15 +521,15 @@ export const SettingsPanels: React.FC = () => {
 
       {/* Bottom Save Button - Positioned at bottom of content */}
       {showSaveButton && (
-        <div className="mt-8 flex justify-end">
+        <div className="container mx-auto px-6 pb-6">
           <div className="mt-8 flex justify-end">
             <Button 
               onClick={handleSave}
               size="lg"
               className="shadow-lg hover:shadow-xl transition-shadow"
-          >
-            Save Changes
-          </Button>
-        </div>
-     </div>
-  )}
+            >
+              Save Changes
+            </Button>
+          </div>
+      </div>
+)}
