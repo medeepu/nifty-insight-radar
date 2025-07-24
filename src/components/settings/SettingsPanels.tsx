@@ -25,6 +25,12 @@ export const SettingsPanels: React.FC = () => {
   const tabsWithSave = ["core", "parameters", "greeks", "risk"];
   const showSaveButton = tabsWithSave.includes(activeTab);
 
+   // 🔧 Add this fix
+  const handleSave = () => {
+    console.log("Saving changes...", settings);
+    // TODO: Save logic here
+  };
+  
   return (
     <div className="min-h-screen bg-background">
       <Tabs defaultValue="core" className="w-full" onValueChange={setActiveTab}>
