@@ -369,7 +369,7 @@ export const IndicatorSettings: React.FC = () => {
   return (
     <div className="space-y-6">
       <CompactToggleWidget
-        title="CPR & Levels"
+        title="CPR & Pivots"
         icon={<TrendingUp className="w-4 h-4" />}
         items={cprItems}
         columns={2}
