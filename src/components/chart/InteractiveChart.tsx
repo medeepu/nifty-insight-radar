@@ -26,7 +26,10 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
     id: 'default'
   };
 
-  const activeChart = chart || defaultChart;
+  // Always use current timeframe from store for all charts
+  const activeChart = chart 
+    ? { ...chart, timeframe: selectedTimeframe } 
+    : defaultChart;
 
   return (
     <Card className="p-6">

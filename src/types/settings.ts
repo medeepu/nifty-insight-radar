@@ -212,52 +212,73 @@ export interface NotificationSettings {
   webhook?: string;
 }
 
+// Indicator Line Style
+export interface IndicatorLineStyle {
+  enabled: boolean;
+  color: string;
+  thickness: number;
+  style: string;
+}
+
 // Indicator Settings
 export interface IndicatorSettings {
   cpr: {
     enabled: boolean;
-    pivot: boolean;
-    bc: boolean;
-    tc: boolean;
-    r1: boolean;
-    r2: boolean;
-    r3: boolean;
-    s1: boolean;
-    s2: boolean;
-    s3: boolean;
+    pivot: IndicatorLineStyle;
+    bc: IndicatorLineStyle;
+    tc: IndicatorLineStyle;
+    r1: IndicatorLineStyle;
+    r2: IndicatorLineStyle;
+    r3: IndicatorLineStyle;
+    s1: IndicatorLineStyle;
+    s2: IndicatorLineStyle;
+    s3: IndicatorLineStyle;
   };
   pivots: {
-    daily: boolean;
-    weekly: boolean;
-    monthly: boolean;
-    r1: boolean;
-    r2: boolean;
-    r3: boolean;
-    s1: boolean;
-    s2: boolean;
-    s3: boolean;
+    daily: IndicatorLineStyle;
+    weekly: IndicatorLineStyle;
+    monthly: IndicatorLineStyle;
+    r1: IndicatorLineStyle;
+    r2: IndicatorLineStyle;
+    r3: IndicatorLineStyle;
+    s1: IndicatorLineStyle;
+    s2: IndicatorLineStyle;
+    s3: IndicatorLineStyle;
   };
   ema: {
-    ema9: { enabled: boolean; color: string; };
-    ema21: { enabled: boolean; color: string; };
-    ema50: { enabled: boolean; color: string; };
-    ema200: { enabled: boolean; color: string; };
+    ema9: IndicatorLineStyle;
+    ema21: IndicatorLineStyle;
+    ema50: IndicatorLineStyle;
+    ema200: IndicatorLineStyle;
   };
   vwap: {
     enabled: boolean;
     color: string;
+    thickness: number;
+    style: string;
   };
   rsi: {
     enabled: boolean;
     period: number;
     overbought: number;
     oversold: number;
+    color: string;
+    thickness: number;
+    style: string;
   };
   stochastic: {
     enabled: boolean;
     kPeriod: number;
     dPeriod: number;
     smooth: number;
+    color: string;
+    thickness: number;
+    style: string;
+  };
+  previousDayHL: {
+    enabled: boolean;
+    high: IndicatorLineStyle;
+    low: IndicatorLineStyle;
   };
 }
 

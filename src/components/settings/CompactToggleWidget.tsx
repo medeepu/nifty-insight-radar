@@ -66,23 +66,21 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
               {/* Compact Style Controls */}
               {item.checked && (item.onColorChange || item.onLineStyleChange || item.onThicknessChange) && (
                 <div className="mt-3 pt-3 border-t border-border/40">
-                  <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
                     {/* Color */}
                     {item.onColorChange && (
-                      <div className="flex items-center gap-1">
-                        <input
-                          type="color"
-                          value={item.color || '#3b82f6'}
-                          onChange={(e) => item.onColorChange!(e.target.value)}
-                          className="w-6 h-6 border border-border rounded cursor-pointer"
-                        />
-                      </div>
+                      <input
+                        type="color"
+                        value={item.color || '#3b82f6'}
+                        onChange={(e) => item.onColorChange!(e.target.value)}
+                        className="w-5 h-5 border border-border rounded cursor-pointer"
+                      />
                     )}
                     
                     {/* Style */}
                     {item.onLineStyleChange && (
                       <Select value={item.lineStyle || 'solid'} onValueChange={item.onLineStyleChange}>
-                        <SelectTrigger className="w-20 h-6 text-xs">
+                        <SelectTrigger className="w-16 h-5 text-xs">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent>
@@ -102,16 +100,16 @@ export const CompactToggleWidget: React.FC<CompactToggleWidgetProps> = ({
                     
                     {/* Thickness */}
                     {item.onThicknessChange && (
-                      <div className="flex items-center gap-1 min-w-0 flex-1">
+                      <div className="flex items-center gap-1 w-12">
                         <Slider
                           value={[item.thickness || 1]}
                           onValueChange={([value]) => item.onThicknessChange!(value)}
                           min={1}
                           max={5}
                           step={1}
-                          className="flex-1"
+                          className="w-8"
                         />
-                        <span className="text-xs w-3">{item.thickness || 1}</span>
+                        <span className="text-xs w-2">{item.thickness || 1}</span>
                       </div>
                     )}
                   </div>

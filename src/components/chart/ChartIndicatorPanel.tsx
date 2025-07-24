@@ -131,64 +131,64 @@ export const ChartIndicatorPanel: React.FC = () => {
                       <div className="flex items-center justify-between">
                         <span>Pivot (P)</span>
                         <Switch
-                          checked={settings.indicators.cpr.pivot}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.pivot', checked)}
+                          checked={settings.indicators.cpr.pivot.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.pivot.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>BC</span>
                         <Switch
-                          checked={settings.indicators.cpr.bc}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.bc', checked)}
+                          checked={settings.indicators.cpr.bc.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.bc.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>TC</span>
                         <Switch
-                          checked={settings.indicators.cpr.tc}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.tc', checked)}
+                          checked={settings.indicators.cpr.tc.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.tc.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>R1</span>
                         <Switch
-                          checked={settings.indicators.cpr.r1}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.r1', checked)}
+                          checked={settings.indicators.cpr.r1.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.r1.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>R2</span>
                         <Switch
-                          checked={settings.indicators.cpr.r2}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.r2', checked)}
+                          checked={settings.indicators.cpr.r2.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.r2.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>R3</span>
                         <Switch
-                          checked={settings.indicators.cpr.r3}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.r3', checked)}
+                          checked={settings.indicators.cpr.r3.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.r3.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>S1</span>
                         <Switch
-                          checked={settings.indicators.cpr.s1}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.s1', checked)}
+                          checked={settings.indicators.cpr.s1.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.s1.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>S2</span>
                         <Switch
-                          checked={settings.indicators.cpr.s2}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.s2', checked)}
+                          checked={settings.indicators.cpr.s2.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.s2.enabled', checked)}
                         />
                       </div>
                       <div className="flex items-center justify-between">
                         <span>S3</span>
                         <Switch
-                          checked={settings.indicators.cpr.s3}
-                          onCheckedChange={(checked) => updateSettings('indicators.cpr.s3', checked)}
+                          checked={settings.indicators.cpr.s3.enabled}
+                          onCheckedChange={(checked) => updateSettings('indicators.cpr.s3.enabled', checked)}
                         />
                       </div>
                     </div>
