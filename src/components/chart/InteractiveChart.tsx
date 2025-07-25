@@ -8,6 +8,7 @@ import { Card } from '../ui/card';
 import { Button } from '../ui/button';
 import { Chart } from '../../store/useChartStore';
 import { useTradingStore } from '../../store/useTradingStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 
 interface InteractiveChartProps {
   chart?: Chart;
@@ -19,6 +20,7 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
   onRemove,
 }) => {
   const { selectedSymbol, selectedTimeframe } = useTradingStore();
+  const { settings } = useSettingsStore();
 
   const defaultChart = {
     symbol: selectedSymbol,
@@ -53,22 +55,30 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
             </p>
           </div>
           
-          {/* Potential Entry Zone Overlay */}
-          <div className="absolute inset-0 pointer-events-none">
-            <div 
-              className="absolute bg-primary/10 border border-primary/30 rounded"
-              style={{
-                left: '20%',
-                right: '60%',
-                top: '30%',
-                bottom: '50%',
-              }}
-            >
-              <div className="absolute top-1 left-2 text-xs text-primary font-medium">
-                Entry Zone
+          {/* Potential Entry Zone Overlay - Only show if enabled */}
+          {settings.indicators.entryZone?.enabled && (
+            <div className="absolute inset-0 pointer-events-none">
+              <div 
+                className="absolute border rounded"
+                style={{
+                  left: '20%',
+                  right: '60%',
+                  top: '30%',
+                  bottom: '50%',
+                  backgroundColor: `${settings.indicators.entryZone.color}${Math.round((settings.indicators.entryZone.opacity || 0.2) * 255).toString(16).padStart(2, '0')}`,
+                  borderColor: settings.indicators.entryZone.color,
+                  borderWidth: '1px',
+                }}
+              >
+                <div 
+                  className="absolute top-1 left-2 text-xs font-medium"
+                  style={{ color: settings.indicators.entryZone.color }}
+                >
+                  Entry Zone
+                </div>
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </Card>

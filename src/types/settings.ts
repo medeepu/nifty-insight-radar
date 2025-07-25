@@ -280,6 +280,11 @@ export interface IndicatorSettings {
     high: IndicatorLineStyle;
     low: IndicatorLineStyle;
   };
+  entryZone: {
+    enabled: boolean;
+    color: string;
+    opacity: number;
+  };
 }
 
 // Complete Settings Interface

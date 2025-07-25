@@ -290,6 +290,16 @@ export const IndicatorSettings: React.FC = () => {
       onLineStyleChange: (style: string) => updateSettings('indicators.previousDayHL.low.style', style),
       thickness: settings.indicators.previousDayHL?.low?.thickness || 1,
       onThicknessChange: (thickness: number) => updateSettings('indicators.previousDayHL.low.thickness', thickness)
+    },
+    {
+      id: 'entry-zone',
+      label: 'Potential Entry Zone',
+      checked: settings.indicators.entryZone?.enabled || false,
+      onChange: (checked: boolean) => updateSettings('indicators.entryZone.enabled', checked),
+      color: settings.indicators.entryZone?.color || '#3b82f6',
+      onColorChange: (color: string) => updateSettings('indicators.entryZone.color', color),
+      isSpecial: true, // This is a zone, not a line
+      description: 'Highlight potential entry areas on chart'
     }
   ];
 
