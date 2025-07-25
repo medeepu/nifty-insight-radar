@@ -162,7 +162,7 @@ export const useGreeks = (optionSymbol: string) => {
       return apiClient.get(`/greeks?optionSymbol=${optionSymbol}`);
     },
     enabled: !!optionSymbol,
-    refetchInterval: 5000, // Update every 5 seconds
+    //refetchInterval: 5000, // Update every 5 seconds
   });
 };
 
