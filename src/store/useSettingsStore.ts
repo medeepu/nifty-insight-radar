@@ -218,6 +218,11 @@ const DEFAULT_SETTINGS: TradingSettings = {
       high: { enabled: true, color: '#ef4444', thickness: 1, style: 'dash-dot' },
       low: { enabled: true, color: '#22c55e', thickness: 1, style: 'dash-dot' },
     },
+    entryZone: {
+      enabled: false,
+      color: '#3b82f6',
+      opacity: 0.2,
+    },
   },
   budgetRisk: {
     maxBudget: 100000,
