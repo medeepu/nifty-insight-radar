@@ -66,19 +66,21 @@ export type MonthlyLevels = DailyLevels;
 
 // Indicators - Now expects full history arrays from backend
 export interface IndicatorData {
+  timestamp?: string;
+  symbol?: string;
   ema: {
-    9: Array<{ time: string | number; value: number }>;
-    21: Array<{ time: string | number; value: number }>;
-    50: Array<{ time: string | number; value: number }>;
-    200: Array<{ time: string | number; value: number }>;
+    9: Array<{ time: string | number; value: number }> | number;
+    21: Array<{ time: string | number; value: number }> | number;
+    50: Array<{ time: string | number; value: number }> | number;
+    200: Array<{ time: string | number; value: number }> | number;
   };
-  vwap: Array<{ time: string | number; value: number }>;
-  rsi: Array<{ time: string | number; value: number }>;
+  vwap: Array<{ time: string | number; value: number }> | number;
+  rsi: Array<{ time: string | number; value: number }> | number;
   stoch: {
-    k: Array<{ time: string | number; value: number }>;
-    d: Array<{ time: string | number; value: number }>;
+    k: Array<{ time: string | number; value: number }> | number;
+    d: Array<{ time: string | number; value: number }> | number;
   };
-  atr: Array<{ time: string | number; value: number }>;
+  atr: Array<{ time: string | number; value: number }> | number;
   ivRank?: number;
 }
 
