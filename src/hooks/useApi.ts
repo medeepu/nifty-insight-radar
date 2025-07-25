@@ -23,7 +23,7 @@ import {
 } from '../types/api';
 
 // API Base Configuration
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
 
 const apiClient = axios.create({
   baseURL: API_BASE_URL,
@@ -44,7 +44,13 @@ apiClient.interceptors.request.use((config) => {
 
 // Response interceptor for error handling
 apiClient.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    // Handle both wrapped and unwrapped responses
+    if (response.data && typeof response.data === 'object' && 'data' in response.data) {
+      return response.data.data;
+    }
+    return response.data;
+  },
   (error) => {
     console.error('API Error:', error);
     
@@ -82,7 +88,15 @@ export const useCurrentPrice = (symbol: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.PRICE, symbol],
     queryFn: async (): Promise<PriceData> => {
-      return apiClient.get(`/price/current?symbol=${symbol}`);
+      const response = await apiClient.get(`/price/current?symbol=${symbol}`);
+      // Transform server response to match client expectations
+      return {
+        symbol: response.symbol,
+        close: response.price, // Server uses 'price', client expects 'close'
+        time: response.timestamp,
+        change: 0, // Server doesn't provide this, set default
+        changePercent: 0 // Server doesn't provide this, set default
+      };
     },
     refetchInterval: 1000, // Update every second
     enabled: !!symbol,
@@ -158,7 +172,20 @@ export const useCurrentSignal = (symbol: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.SIGNAL, symbol],
     queryFn: async (): Promise<SignalData> => {
-      return apiClient.get(`/signal/current?symbol=${symbol}`);
+      const response = await apiClient.get(`/signal/current?symbol=${symbol}`);
+      // Transform server response to match client expectations
+      return {
+        signal: response.direction === 'long' ? 'BUY' : 
+                response.direction === 'short' ? 'SELL' : 'NEUTRAL',
+        scenario: response.scenario,
+        entry: response.entry_price,
+        sl: response.stop_price,
+        tp: response.target_price,
+        rr: response.risk_reward,
+        timestamp: response.timestamp,
+        proTip: response.reason || 'No additional information available',
+        confidence: response.confidence * 100 // Convert to percentage
+      };
     },
     enabled: !!symbol,
     refetchInterval: 10000, // Update every 10 seconds
@@ -170,7 +197,22 @@ export const useGreeks = (optionSymbol: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.GREEKS, optionSymbol],
     queryFn: async (): Promise<GreeksData> => {
-      return apiClient.get(`/greeks?optionSymbol=${optionSymbol}`);
+      const response = await apiClient.get(`/greeks?optionSymbol=${optionSymbol}`);
+      // Transform server response to match client expectations
+      return {
+        delta: response.delta,
+        gamma: response.gamma,
+        theta: response.theta,
+        vega: response.vega,
+        rho: response.rho,
+        iv: response.implied_volatility, // Server uses 'implied_volatility'
+        theoreticalPrice: response.option_price, // Server uses 'option_price'
+        intrinsicValue: response.intrinsic_value,
+        timeValue: response.time_value,
+        status: response.underlying_price > response.strike ? 'ITM' : 
+                response.underlying_price < response.strike ? 'OTM' : 'ATM',
+        moneynessPercent: ((response.underlying_price - response.strike) / response.strike) * 100
+      };
     },
     enabled: !!optionSymbol,
     //refetchInterval: 5000, // Update every 5 seconds
