@@ -1,499 +1,126 @@
-# Nifty Options Trading Dashboard
-*A comprehensive real-time trading interface for intraday NIFTY options analysis and automated execution*
+# Nifty Options Trading Dashboard with CPR‑Centric Backend
 
-## 🎯 Overview
+This repository bundles the original **Nifty Options Trading Dashboard** frontend with a brand new **FastAPI backend** that implements a CPR‑focused trading engine.  Use this package as a unified starting point for local development or further customisation.
 
-The Nifty Options Trading Dashboard is a sophisticated React-based frontend application built for professional options traders. It provides real-time market data visualization, advanced technical analysis, options Greeks tracking, risk management tools, and integrated broker connectivity for seamless trading execution.
+## Frontend Overview
 
-## 🚀 Key Features
+The React dashboard is a comprehensive real‑time trading interface for intraday NIFTY options analysis and automated execution.  Key features include:
 
-### Real-Time Trading Interface
-- **Live Price Feeds**: Real-time NIFTY spot price updates via WebSocket connections
-- **Interactive Charts**: TradingView Lightweight Charts with multi-timeframe support (1m, 5m, 15m, 1h, 1d)
-- **Technical Indicators**: Comprehensive suite including EMA (9/21/50/200), VWAP, RSI, Stochastic, CPR levels
-- **Signal System**: Buy/Sell/Neutral signals with visual markers and risk-reward calculations
+- **Live price feeds** via WebSocket.
+- **Interactive charts** with multi‑timeframe support using TradingView Lightweight Charts.
+- **Technical indicators**: EMA (9/21/50/200), VWAP, RSI, Stochastic, and CPR levels.
+- **Signal system**: Buy/Sell/Neutral signals with risk–reward metrics.
+- **Options analytics**: Greeks calculator (Delta, Gamma, Theta, Vega), implied volatility rank, and strike selection.
+- **Comprehensive settings**: Customisable widget layouts, indicator styling, risk limits, and timeframe synchronisation.
+- **Broker integration**: Built‑in support for Zerodha and Dhan for order placement and account queries (when backend is connected).
 
-### Advanced Options Analytics
-- **Greeks Calculator**: Real-time Delta, Gamma, Theta, Vega calculations with visual progress indicators
-- **IV Analysis**: Implied Volatility tracking with IV Rank and historical comparisons
-- **Strike Selection**: Multiple modes - Closest ATM, ITM+100, OTM-100, Manual, and Ticker input
-- **Moneyness Tracking**: Real-time ITM/ATM/OTM status with percentage calculations
+For full details on the UI, component structure and design system, refer to the original project documentation.
 
-### Comprehensive Settings & Customization
-- **Dashboard Configuration**: Customizable widget visibility and layout preferences
-- **Indicator Settings**: Independent color, thickness, and style controls for each technical indicator
-- **Risk Management**: Configurable budget limits, max loss percentages, and position sizing
-- **Timeframe Synchronization**: Unified timeframe selection across all chart components
+## Backend Overview
 
-### Trading Tools & Analysis
-- **Backtesting Engine**: Historical strategy testing with detailed performance metrics
-- **ML Insights**: Machine learning-powered market regime analysis
-- **Risk Widgets**: Visual risk-reward ratios and position sizing calculators
-- **Pro Tips**: AI-generated trading insights and market commentary
+The new backend resides in the `nifty_backend` folder and provides a high‑performance trading engine and API written with **FastAPI**.  It is designed to align with the frontend’s expectations (see `src/hooks/useApi.ts`) and implements the following:
 
-### Broker Integration
-- **Multi-Broker Support**: Zerodha and Dhan API integration ready
-- **Secure Credential Management**: Encrypted API key storage and management
-- **Order Execution**: Direct trade execution capabilities (when backend is connected)
+1. **CPR‑centric trading engine**: Calculates daily Central Pivot Range and uses breakout, pullback and reversal scenarios to generate entry, stop and target prices.  Risk management, position sizing and risk–reward calculations are built in.
+2. **Option‑level metrics**: Given an option’s Delta, the engine translates underlying stop and target levels into approximate option prices and potential P&L.
+3. **Indicator service**: Computes EMA, ATR, RSI, stochastic oscillator and VWAP on demand.
+4. **Greeks calculation**: Implements Black–Scholes pricing to return Delta, Gamma, Theta, Vega, Rho and theoretical price for call or put options.
+5. **API endpoints** that mirror the frontend’s requirements:
+   - `GET /api/price/current?symbol=` – latest spot price.
+   - `GET /api/candles?symbol=&tf=&start=&end=` – historical candles.
+   - `GET /api/levels/daily?symbol=` – daily pivot and CPR levels.
+   - `GET /api/indicators?symbol=&tf=` – current indicator values.
+   - `GET /api/signal/current?symbol=&tf=&delta=` – latest trading signal with optional option‑level metrics.
+   - `GET /api/greeks?optionSymbol=&spot=&strike=&expiry=&iv=&option_type=` – Greeks and theoretical price.
+   - `POST /api/backtest` – stub endpoint for backtesting.
+   - `POST /api/broker/keys` and `POST /api/trade/execute` – stubs for broker integration.
+   - `GET/POST /api/user/settings` – user configuration persistence (stub).
 
-## 🛠️ Technology Stack
+The backend is modular: indicator calculations live in `nifty_backend/indicators.py`, the trading logic in `nifty_backend/trading_engine.py`, and the API definitions in `nifty_backend/main.py`.  For integration with real market data and brokers, replace the stubs in `nifty_backend/data_provider.py` and extend the broker endpoints accordingly.
 
-### Frontend Core
-- **React 18** with TypeScript for type safety
-- **Vite** for fast development and optimized builds
-- **Zustand** for lightweight state management
-- **React Query (TanStack)** for server state and caching
-
-### UI/UX Framework
-- **Tailwind CSS** with custom design system tokens
-- **shadcn/ui** components for consistent styling
-- **Radix UI** primitives for accessibility
-- **Lucide React** for iconography
-
-### Charts & Visualization
-- **TradingView Lightweight Charts** for high-performance charting
-- **Recharts** for additional data visualization
-- **Custom chart overlays** for technical indicators
-
-### Data Management
-- **Axios** for HTTP client with interceptors
-- **WebSocket** integration for real-time data
-- **React Hook Form** with Zod validation for forms
-
-## 📁 Project Structure
-
-```
-src/
-├── components/
-│   ├── chart/                    # Chart-related components
-│   │   ├── InteractiveChart.tsx     # Main chart component
-│   │   ├── ChartControls.tsx       # Chart interaction controls
-│   │   ├── ChartIndicators.tsx     # Technical indicators overlay
-│   │   └── ModernTradingChart.tsx  # Enhanced chart with indicators
-│   │
-│   ├── dashboard/                # Dashboard widgets
-│   │   ├── MarketInfoCard.tsx      # Market status and trends
-│   │   ├── OptionParamsCard.tsx    # Option contract details
-│   │   ├── GreeksCard.tsx          # Greeks display with loading states
-│   │   ├── PriceAnalysisCard.tsx   # Price breakdown analysis
-│   │   ├── ProTipCard.tsx          # AI-generated insights
-│   │   ├── RiskWidget.tsx          # Risk management tools
-│   │   └── SymbolSelector.tsx      # Instrument selection
-│   │
-│   ├── layout/                   # Layout components
-│   │   ├── MainLayout.tsx          # Main application layout
-│   │   ├── TopBar.tsx              # Navigation and controls
-│   │   ├── Sidebar.tsx             # Navigation sidebar
-│   │   └── MenuBar.tsx             # Menu navigation
-│   │
-│   ├── settings/                 # Settings panels
-│   │   ├── SettingsDrawer.tsx      # Main settings container
-│   │   ├── SettingsPanels.tsx      # Organized settings groups
-│   │   ├── IndicatorSettings.tsx   # Independent indicator controls
-│   │   ├── CompactToggleWidget.tsx # Inline color/style controls
-│   │   └── BrokerIntegrationPanel.tsx # Broker configuration
-│   │
-│   └── ui/                       # Reusable UI components
-│       ├── [shadcn components]     # Standard UI components
-│       ├── loading-spinner.tsx     # Loading states
-│       └── toast.tsx               # Notification system
-│
-├── hooks/                        # Custom React hooks
-│   ├── useApi.ts                   # API integration with error handling
-│   ├── useWebSocket.ts             # WebSocket management
-│   └── use-toast.ts                # Toast notifications
-│
-├── store/                        # State management
-│   ├── useTradingStore.ts          # Trading data and real-time updates
-│   ├── useSettingsStore.ts         # User preferences and configuration
-│   └── useChartStore.ts            # Chart state and multi-chart management
-│
-├── types/                        # TypeScript interfaces
-│   ├── api.ts                      # API response types
-│   └── settings.ts                 # Settings and configuration types
-│
-├── pages/                        # Application pages
-│   ├── Dashboard.tsx               # Main trading dashboard
-│   ├── Backtesting.tsx             # Strategy backtesting
-│   ├── MLInsights.tsx              # ML analysis page
-│   ├── Logs.tsx                    # System logs and activity
-│   └── Settings.tsx                # Global settings
-│
-└── utils/                        # Utility functions
-    ├── chartDataMapper.ts          # Chart data transformation
-    └── [other utilities]
-```
-
-## 🔧 Installation & Setup
+## Installation & Setup
 
 ### Prerequisites
-- Node.js 18+ or Bun runtime
-- Modern web browser with WebSocket support
 
-### Quick Start
+- **Node.js 18+** or Bun for the frontend.
+- **Python 3.10+** for the backend.
+- A modern web browser with WebSocket support.
 
-```bash
-# Clone the repository
-git clone [repository-url]
-cd nifty-options-dashboard
+### Backend Setup
 
-# Install dependencies
-npm install
-# or
-bun install
+1. Create a virtual environment (optional but recommended):
 
-# Start development server
-npm run dev
-# or
-bun dev
+   ```bash
+   python -m venv venv
+   source venv/bin/activate  # On Windows use venv\Scripts\activate
+   ```
 
-# Open browser to http://localhost:5173
-```
+2. Install Python dependencies:
 
-### Environment Configuration
+   ```bash
+   pip install -r requirements.txt
+   ```
 
-Create a `.env.local` file in the root directory:
+3. Run the FastAPI server:
 
-```env
-# API Configuration
-VITE_API_BASE_URL=http://localhost:8000
-VITE_WS_URL=ws://localhost:8000
+   ```bash
+   uvicorn nifty_backend.main:app --reload --port 8000
+   ```
 
-# Default Settings
-VITE_DEFAULT_SYMBOL=NIFTY
-VITE_DEFAULT_TIMEFRAME=5m
+   The API will be available at `http://localhost:8000`.  Modify `port` as needed.
 
-# Optional: Theme preference
-VITE_THEME=system
-```
+### Frontend Setup
 
-## 🔗 API Integration
+1. Install Node dependencies:
 
-### REST Endpoints
+   ```bash
+   npm install
+   # or
+   bun install
+   ```
 
-The application expects the following backend endpoints:
+2. Create a `.env.local` file with environment variables:
 
-```typescript
-// Price Data
-GET /api/price/current?symbol=NIFTY
-GET /api/candles?symbol=NIFTY&tf=5m&start=ISO&end=ISO
+   ```env
+   # API Configuration
+   VITE_API_BASE_URL=http://localhost:8000
+   VITE_WS_URL=ws://localhost:8000
 
-// Technical Levels
-GET /api/levels/daily?symbol=NIFTY
-GET /api/levels/weekly?symbol=NIFTY
-GET /api/levels/monthly?symbol=NIFTY
+   # Default Settings
+   VITE_DEFAULT_SYMBOL=NIFTY
+   VITE_DEFAULT_TIMEFRAME=5m
+   ```
 
-// Indicators & Signals
-GET /api/indicators?symbol=NIFTY
-GET /api/signal/current?symbol=NIFTY
+3. Start the development server:
 
-// Options & Greeks
-GET /api/greeks?optionSymbol=NIFTY24DEC21000CE
+   ```bash
+   npm run dev
+   # or
+   bun dev
+   ```
 
-// Backtesting
-POST /api/backtest
-Body: { symbol, from, to, timeframe, paramsOverride? }
+Open your browser at `http://localhost:5173` (default Vite port) to view the dashboard.  Ensure the backend is running so that the frontend can retrieve data.
 
-// ML Insights
-GET /api/ml/insight?symbol=NIFTY
+## API Integration Notes
 
-// Logs & Activity
-GET /api/logs/recent?limit=100
+The frontend expects specific REST endpoints and WebSocket channels for price updates, trading signals and logs【969225270487737†L194-L242】.  The provided backend implements all REST endpoints listed in the original README.  WebSocket streaming is currently stubbed; implement `WebSocket` endpoints in `nifty_backend/main.py` if you need real‑time updates.  To integrate with real brokers (Zerodha or Dhan), use their official Python SDKs within the `/api/trade/execute` endpoint.
 
-// User Settings
-GET /api/user/settings
-POST /api/user/settings
+## Combining Frontend and Backend
 
-// Broker Integration
-POST /api/broker/keys
-POST /api/trade/execute
-```
+This repository does **not** contain the full source code of the original client (to keep the repository size manageable in this environment).  To assemble a complete project:
 
-### WebSocket Channels
+1. Clone or copy the original frontend files from your existing `nifty-insight-radar` project into this repository, preserving the `src/`, `public/`, `package.json`, and other configuration files.
+2. Copy the `nifty_backend` folder and `requirements.txt` into the project root.
+3. Replace the existing `README.md` with this file to include backend setup instructions.
+4. Commit and push the combined project to your own GitHub repository.
 
-```typescript
-// Real-time price updates
-/ws/price → { type: "price", data: PriceData }
+Once combined, you will have a single monorepo containing both React frontend and FastAPI backend.  Use `npm` (or Bun) to develop the UI and `uvicorn` to run the backend concurrently.  Configure a reverse proxy (e.g. Nginx) or Vite’s proxy settings to forward `/api` requests to the backend during development.
 
-// Trading signals
-/ws/signal → { type: "signal", data: SignalData }
+## Next Steps
 
-// System logs
-/ws/logs → { type: "log", data: LogData }
-```
+1. **Real data feeds**: Replace the dummy price and candle generation in `nifty_backend/data_provider.py` with actual WebSocket subscriptions from your broker or third‑party APIs (Finnhub, Alpha Vantage).  Cache these ticks in Redis for sub‑100 ms access.
+2. **Broker integration**: Implement order placement and execution tracking using `dhanhq` or `kiteconnect` SDKs within `/api/trade/execute`.
+3. **WebSocket streaming**: Add `/ws/price`, `/ws/signal` and `/ws/logs` endpoints to broadcast live data and signals to the frontend.  You can utilise `fastapi.WebSocket` and `redis` pub/sub for efficient fan‑out.
+4. **Persistence layer**: Connect to PostgreSQL for persisting user settings, API keys, trade history and analytics.  Consider using SQLAlchemy or the `databases` library for asynchronous DB access.
+5. **Testing & backtesting**: Extend `/api/backtest` to load historical candles and run the trading engine over a date range.  Write unit tests for indicator calculations and signal logic.
 
-## 🎨 Design System
-
-### Color Tokens
-
-The application uses a semantic color system defined in `src/index.css`:
-
-```css
-:root {
-  /* Trading Colors */
-  --bull-green: 142 76% 36%;     /* Bullish movements */
-  --bear-red: 0 84% 60%;         /* Bearish movements */
-  --neutral-yellow: 48 96% 53%;  /* Neutral signals */
-  
-  /* UI Colors */
-  --primary: 221 83% 53%;        /* Primary brand color */
-  --secondary: 210 40% 98%;      /* Secondary elements */
-  --muted: 210 40% 96%;          /* Muted backgrounds */
-  --accent: 210 40% 94%;         /* Accent highlights */
-  
-  /* State Colors */
-  --success: 142 76% 36%;        /* Success states */
-  --warning: 48 96% 53%;         /* Warning states */
-  --destructive: 0 84% 60%;      /* Error states */
-}
-```
-
-### Component Variants
-
-Each UI component supports multiple variants for different contexts:
-
-```typescript
-// Button variants
-<Button variant="default | destructive | outline | secondary | ghost | link" />
-
-// Badge variants  
-<Badge variant="default | secondary | destructive | outline" />
-
-// Card styling
-<Card className="trading-card" /> // Special trading context styling
-```
-
-## 🔧 Advanced Features
-
-### Independent Indicator Controls
-
-Each technical indicator has independent configuration:
-
-- **Color Selection**: Custom color picker for each indicator line
-- **Line Thickness**: Multiple thickness options (1px to 5px)
-- **Line Style**: Solid, dashed, dotted, and symbol overlays
-- **Visibility Toggle**: Show/hide individual indicators
-
-### Multi-Chart Support
-
-The dashboard supports multiple chart instances:
-
-```typescript
-// Add additional charts for comparison
-const { addChart, removeChart } = useChartStore();
-
-// Each chart maintains independent timeframe
-<InteractiveChart chart={chart} onRemove={() => removeChart(chart.id)} />
-```
-
-### Real-Time Synchronization
-
-All components automatically sync with the selected timeframe:
-
-```typescript
-// Timeframe changes propagate to all chart widgets
-const { selectedTimeframe, setSelectedTimeframe } = useTradingStore();
-```
-
-### Error Handling & Toast Notifications
-
-Comprehensive error handling with user-friendly notifications:
-
-```typescript
-// Automatic toast notifications for API errors
-import { toast } from "@/hooks/use-toast";
-
-// Success notification
-toast({
-  title: "Success",
-  description: "Settings saved successfully",
-});
-
-// Error notification
-toast({
-  title: "Error",
-  description: "Failed to load data",
-  variant: "destructive",
-});
-```
-
-### Loading States
-
-Consistent loading indicators across all components:
-
-```typescript
-import { LoadingSpinner, LoadingCard } from "@/components/ui/loading-spinner";
-
-// Inline spinner
-<LoadingSpinner size="md" />
-
-// Card with loading message
-<LoadingCard>Loading market data...</LoadingCard>
-```
-
-## 🧪 Testing & Quality
-
-### Type Safety
-
-Strict TypeScript configuration ensures type safety:
-
-```bash
-# Type checking
-npm run type-check
-bun run type-check
-```
-
-### Linting & Formatting
-
-```bash
-# Lint code
-npm run lint
-bun run lint
-
-# Format code
-npm run format
-bun run format
-```
-
-### Build Optimization
-
-```bash
-# Production build
-npm run build
-bun run build
-
-# Preview build locally
-npm run preview
-bun run preview
-```
-
-## 🚀 Deployment
-
-### Static Build Deployment
-
-The application builds to a static bundle suitable for any hosting provider:
-
-```bash
-# Build for production
-npm run build
-
-# Deploy dist/ folder to:
-# - Vercel
-# - Netlify  
-# - AWS S3 + CloudFront
-# - GitHub Pages
-# - Any static hosting service
-```
-
-### Environment Variables for Production
-
-```env
-VITE_API_BASE_URL=https://your-api-domain.com
-VITE_WS_URL=wss://your-websocket-domain.com
-```
-
-## 🔮 Recent Updates & Improvements
-
-### Latest Enhancements (v2.0)
-
-#### UI/UX Improvements
-- ✅ **Compact Settings Layout**: Consolidated color, thickness, and style controls into single-line widgets
-- ✅ **Independent Indicator Controls**: Each technical indicator now has separate configuration
-- ✅ **Enhanced Timeframe Sync**: All chart components automatically sync with menu bar timeframe selection
-- ✅ **Improved Loading States**: Consistent loading spinners and skeleton screens across all components
-
-#### Feature Additions
-- ✅ **Potential Entry Zone Visualization**: Added shaded areas on charts to highlight entry opportunities
-- ✅ **Advanced Strike Selection**: Added ticker input support with TradingView and NSE format options
-- ✅ **Expiry Date Selection**: Calendar picker for manual option expiry date selection
-- ✅ **Broker Integration Separation**: Moved broker settings to dedicated tab for better organization
-
-#### Technical Improvements
-- ✅ **Toast Notification System**: Comprehensive error handling with user-friendly notifications
-- ✅ **WebSocket Message Parsing**: Enhanced real-time data handling for price, signal, and log messages
-- ✅ **API Error Handling**: Automatic retry logic and graceful degradation
-- ✅ **TypeScript Enhancements**: Improved type safety across all components
-
-#### Design System Updates
-- ✅ **Semantic Color Tokens**: Consistent theming using HSL color variables
-- ✅ **Component Variants**: Enhanced styling options for different contexts
-- ✅ **Responsive Design**: Improved mobile and tablet experiences
-- ✅ **Dark/Light Mode**: Complete theme support with smooth transitions
-
-## 🛠️ Development Guidelines
-
-### Code Organization
-
-- **Component Structure**: Each component should be focused and reusable
-- **State Management**: Use appropriate stores for different data types
-- **Type Safety**: All props and data should be properly typed
-- **Error Boundaries**: Implement proper error handling at component level
-
-### Performance Best Practices
-
-- **Memoization**: Use React.memo for expensive components
-- **Virtual Scrolling**: Implement for large data lists
-- **Lazy Loading**: Code split pages and heavy components
-- **WebSocket Optimization**: Efficient message handling and reconnection logic
-
-### Styling Guidelines
-
-- **Design Tokens**: Always use semantic color variables
-- **Component Variants**: Create reusable styling variants
-- **Responsive Design**: Mobile-first approach with breakpoint helpers
-- **Accessibility**: Ensure proper ARIA labels and keyboard navigation
-
-## 📋 Roadmap
-
-### Upcoming Features
-- 🔄 **Enhanced ML Integration**: Advanced sentiment analysis and pattern recognition
-- 🔄 **Mobile App**: React Native version for iOS and Android
-- 🔄 **Advanced Backtesting**: Multi-strategy comparison and optimization
-- 🔄 **Social Trading**: Community signals and strategy sharing
-
-### Technical Debt
-- 🔄 **Test Coverage**: Comprehensive unit and integration tests
-- 🔄 **Performance Monitoring**: Real-time performance analytics
-- 🔄 **Documentation**: Interactive component documentation
-- 🔄 **Accessibility Audit**: WCAG 2.1 AA compliance
-
-## 🤝 Contributing
-
-### Development Setup
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/your-feature-name`
-3. Make your changes following the coding guidelines
-4. Add tests for new functionality
-5. Ensure all checks pass: `npm run lint && npm run type-check`
-6. Submit a pull request with a clear description
-
-### Commit Convention
-
-Use conventional commits for better changelog generation:
-
-```bash
-feat: add new indicator settings panel
-fix: resolve timeframe synchronization issue
-docs: update API documentation
-style: improve component styling consistency
-refactor: optimize chart rendering performance
-test: add unit tests for trading store
-```
-
-## 📄 License
-
-This project is proprietary software. For licensing inquiries, please contact the repository owner.
-
-## 🙏 Acknowledgments
-
-- **TradingView** for the excellent Lightweight Charts library
-- **shadcn/ui** for the beautiful component system
-- **Radix UI** for accessibility-first primitives
-- **Zustand** for simple and effective state management
-
----
-
-**Happy Trading! 📈🚀**
-
-*Built with ❤️ for professional options traders*
+By following these steps you will have a complete, scalable trading platform that marries a polished React frontend with a robust CPR‑centric trading backend.
