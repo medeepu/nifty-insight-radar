@@ -299,7 +299,7 @@ export const IndicatorSettings: React.FC = () => {
       color: settings.indicators.entryZone?.color || '#3b82f6',
       onColorChange: (color: string) => updateSettings('indicators.entryZone.color', color),
       isSpecial: true, // This is a zone, not a line
-      //description: 'Highlight potential entry areas on chart'
+      description: 'Highlight potential entry areas on chart'
     }
   ];
 
