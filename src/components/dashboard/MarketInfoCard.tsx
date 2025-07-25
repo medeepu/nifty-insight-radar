@@ -9,10 +9,27 @@ import { Badge } from '../ui/badge';
 import { BarChart3, TrendingDown, Minus } from 'lucide-react';
 import { useTradingStore } from '../../store/useTradingStore';
 import { useDailyLevels } from '../../hooks/useApi';
+import { LoadingCard } from '../ui/loading-spinner';
 
 export const MarketInfoCard: React.FC = () => {
   const { currentPrice, selectedSymbol } = useTradingStore();
-  const { data: dailyLevels } = useDailyLevels(selectedSymbol);
+  const { data: dailyLevels, isLoading } = useDailyLevels(selectedSymbol);
+
+  if (isLoading) {
+    return (
+      <Card className="trading-card">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-sm font-medium flex items-center gap-2">
+            <BarChart3 className="h-4 w-4" />
+            Market Info
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <LoadingCard>Loading market data...</LoadingCard>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const getTrendIcon = () => {
     if (!currentPrice?.change) return <Minus className="h-4 w-4" />;

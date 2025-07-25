@@ -68,8 +68,11 @@ export const useWebSocket = ({
               setCurrentSignal(message.data);
               break;
             case 'log':
+              // TODO: Add to log store when implemented
               console.log('WebSocket Log:', message.data);
               break;
+            default:
+              console.log('Unknown message type:', message);
           }
           
           onMessage?.(message);

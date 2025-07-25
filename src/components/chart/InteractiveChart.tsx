@@ -42,7 +42,7 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
             </Button>
           )}
         </div>
-        <div className="h-96 bg-muted/10 border border-dashed rounded-lg flex items-center justify-center">
+        <div className="h-96 bg-muted/10 border border-dashed rounded-lg flex items-center justify-center relative">
           <div className="text-center space-y-2">
             <p className="text-lg font-semibold">TradingView Lightweight Charts</p>
             <p className="text-muted-foreground">
@@ -51,6 +51,23 @@ export const InteractiveChart: React.FC<InteractiveChartProps> = ({
             <p className="text-sm text-muted-foreground">
               Features: Multi-timeframe, Technical indicators, Real-time updates
             </p>
+          </div>
+          
+          {/* Potential Entry Zone Overlay */}
+          <div className="absolute inset-0 pointer-events-none">
+            <div 
+              className="absolute bg-primary/10 border border-primary/30 rounded"
+              style={{
+                left: '20%',
+                right: '60%',
+                top: '30%',
+                bottom: '50%',
+              }}
+            >
+              <div className="absolute top-1 left-2 text-xs text-primary font-medium">
+                Entry Zone
+              </div>
+            </div>
           </div>
         </div>
       </div>

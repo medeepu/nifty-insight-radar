@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Activity, TrendingUp, TrendingDown, Settings } from 'lucide-react';
 import { useGreeks } from '../../hooks/useApi';
 import { useTradingStore } from '../../store/useTradingStore';
+import { LoadingCard } from '../ui/loading-spinner';
 
 export const GreeksCard: React.FC = () => {
   const { selectedSymbol } = useTradingStore();
@@ -83,11 +84,7 @@ export const GreeksCard: React.FC = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="animate-pulse space-y-3">
-            {[1, 2, 3, 4].map(i => (
-              <div key={i} className="h-4 bg-muted rounded" />
-            ))}
-          </div>
+          <LoadingCard>Loading Greeks data...</LoadingCard>
         </CardContent>
       </Card>
     );

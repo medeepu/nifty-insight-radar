@@ -47,6 +47,17 @@ apiClient.interceptors.response.use(
   (response) => response.data,
   (error) => {
     console.error('API Error:', error);
+    
+    // Show toast notification for errors
+    import('@/hooks/use-toast').then(({ toast }) => {
+      const message = error?.response?.data?.message || error?.message || 'An unexpected error occurred';
+      toast({
+        title: "API Error",
+        description: message,
+        variant: "destructive",
+      });
+    });
+    
     throw error;
   }
 );
@@ -208,7 +219,13 @@ export const useBacktest = () => {
   
   return useMutation({
     mutationFn: async (request: BacktestRequest): Promise<BacktestResult> => {
-      return apiClient.post('/backtest', request);
+      // Use 'from' and 'to' keys as expected by backend
+      const formattedRequest = {
+        ...request,
+        from: request.from, // Ensure proper date format
+        to: request.to,
+      };
+      return apiClient.post('/backtest', formattedRequest);
     },
     onSuccess: () => {
       // Invalidate related queries if needed
@@ -254,11 +271,16 @@ export const useApiError = () => {
   const handleError = (error: any) => {
     console.error('API Error:', error);
     
-    // You can add toast notifications here
     const message = error?.response?.data?.message || error?.message || 'An unexpected error occurred';
     
-    // TODO: Add toast notification
-    console.error('Error message:', message);
+    // Import and use toast
+    import('@/hooks/use-toast').then(({ toast }) => {
+      toast({
+        title: "API Error",
+        description: message,
+        variant: "destructive",
+      });
+    });
     
     return message;
   };
