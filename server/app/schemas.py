@@ -1,7 +1,10 @@
-"""Pydantic schemas for request and response bodies.
+"""
+Extended Pydantic schemas for request and response bodies.
 
-These models define the structure of data exchanged between the API and
-clients.  They also serve as documentation for the OpenAPI specification.
+This module mirrors the original schemas but introduces nested user
+settings structures, optional indicator series responses and additional
+fields for option Greeks such as moneyness and status.  Existing field
+names are preserved where possible to maintain backwards compatibility.
 """
 
 from __future__ import annotations
@@ -32,19 +35,36 @@ class Token(BaseModel):
 
 
 class UserSettingsModel(BaseModel):
-    risk_capital: float = Field(0, description="Total capital allocated for trading")
-    risk_per_trade: float = Field(0, description="Maximum risk per individual trade")
-    default_timeframe: str = Field("5m", description="Default chart timeframe")
-    advanced_filters: Dict[str, Any] = Field(default_factory=dict)
-    indicator_prefs: Dict[str, Any] = Field(default_factory=dict)
+    """
+    Nested user settings as expected by the client.
+
+    The settings are grouped into logically related categories rather than
+    being flat columns.  Risk parameters, display preferences and
+    notifications all live in their own sub‑dictionaries.  New categories
+    can be added over time without breaking backwards compatibility.
+    """
+
+    theme: str = Field("dark", description="UI theme (dark/light)")
+    defaultSymbol: str = Field("NIFTY", description="Default trading symbol")
+    defaultTimeframe: str = Field("5m", description="Default chart timeframe")
+    riskSettings: Dict[str, float] = Field(default_factory=dict, description="Risk management settings")
+    displaySettings: Dict[str, bool] = Field(default_factory=dict, description="Chart and UI display preferences")
+    notifications: Dict[str, bool] = Field(default_factory=dict, description="Notification channel toggles")
+    indicatorPreferences: Dict[str, Any] = Field(default_factory=dict, description="Preferred indicator parameters")
+    chartConfiguration: Dict[str, Any] = Field(default_factory=dict, description="Chart configuration options")
+    brokerSettings: Dict[str, Any] = Field(default_factory=dict, description="Broker connection details")
 
 
 class UpdateUserSettings(BaseModel):
-    risk_capital: Optional[float] = None
-    risk_per_trade: Optional[float] = None
-    default_timeframe: Optional[str] = None
-    advanced_filters: Optional[Dict[str, Any]] = None
-    indicator_prefs: Optional[Dict[str, Any]] = None
+    theme: Optional[str] = None
+    defaultSymbol: Optional[str] = None
+    defaultTimeframe: Optional[str] = None
+    riskSettings: Optional[Dict[str, float]] = None
+    displaySettings: Optional[Dict[str, bool]] = None
+    notifications: Optional[Dict[str, bool]] = None
+    indicatorPreferences: Optional[Dict[str, Any]] = None
+    chartConfiguration: Optional[Dict[str, Any]] = None
+    brokerSettings: Optional[Dict[str, Any]] = None
 
 
 # ---------------------------------------------------------------------------
@@ -92,6 +112,14 @@ class DailyLevels(BaseModel):
 # ---------------------------------------------------------------------------
 
 class IndicatorData(BaseModel):
+    """
+    Single snapshot of indicator values.
+
+    This model is retained for backwards compatibility when clients only
+    need the most recent indicator values.  For historical series use
+    `IndicatorSeriesData`.
+    """
+
     timestamp: datetime.datetime
     symbol: str
     ema9: Optional[float]
@@ -104,6 +132,26 @@ class IndicatorData(BaseModel):
     stoch_k: Optional[float]
     stoch_d: Optional[float]
     volume_ma: Optional[float]
+
+
+class IndicatorSeriesData(BaseModel):
+    """
+    Historical indicator series for chart overlays.
+
+    Each field is either a list of time/value pairs or a dictionary keyed
+    by period.  Clients can use these arrays to plot continuous indicator
+    lines.  Values may be `None` for periods where insufficient history
+    exists (e.g. ATR before 14 candles have formed).
+    """
+
+    symbol: str
+    ema: Dict[str, List[Dict[str, Any]]]
+    vwap: List[Dict[str, Any]]
+    atr: List[Dict[str, Any]]
+    rsi: List[Dict[str, Any]]
+    stoch_k: List[Dict[str, Any]]
+    stoch_d: List[Dict[str, Any]]
+    volume_ma: List[Dict[str, Any]]
 
 
 class SignalData(BaseModel):
@@ -144,6 +192,8 @@ class GreeksData(BaseModel):
     target_price: float
     risk_reward: float
     position_size: int
+    moneyness_percent: float
+    status: str
 
 
 # ---------------------------------------------------------------------------

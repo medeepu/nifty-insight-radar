@@ -1,8 +1,10 @@
-"""ORM models for the Nifty Insight Radar backend.
+"""
+ORM models for the Nifty Insight Radar backend (extended).
 
-Each class in this module maps to a table defined in the project specification.
-We use SQLAlchemy's declarative base to define columns, relationships and
-indexes.
+This version of the models module introduces a nested user settings
+structure, additional tables to support option chains, historical implied
+volatility and user portfolios, and renames indicator preference fields
+for clarity.  Existing columns remain to support legacy data.
 """
 
 from __future__ import annotations
@@ -37,6 +39,7 @@ class User(Base):
     settings = relationship("UserSettings", back_populates="user", uselist=False)
     trades = relationship("Trade", back_populates="user")
     broker_credentials = relationship("BrokerCredentials", back_populates="user", uselist=False)
+    portfolios = relationship("UserPortfolio", back_populates="user")
 
 
 class UserSettings(Base):
@@ -44,13 +47,29 @@ class UserSettings(Base):
 
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+
+    # Legacy flat settings fields (retained for backward compatibility)
     risk_capital = Column(Numeric, default=0)
     risk_per_trade = Column(Numeric, default=0)
     default_timeframe = Column(String(16), default="5m")
     advanced_filters = Column(JSON, default={})
     indicator_prefs = Column(JSON, default={})
+
+    # Nested settings structure used by the new client
+    theme = Column(String(16), default="dark")
+    default_symbol = Column(String(16), default="NIFTY")
+    default_timeframe_nested = Column(String(16), default="5m")
+    risk_settings = Column(JSON, default={})
+    display_settings = Column(JSON, default={})
+    notifications = Column(JSON, default={})
+    indicator_preferences = Column(JSON, default={})
+    chart_configuration = Column(JSON, default={})
+    broker_settings = Column(JSON, default={})
+
     created_at = Column(DateTime, default=datetime.datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow)
+    updated_at = Column(
+        DateTime, default=datetime.datetime.utcnow, onupdate=datetime.datetime.utcnow
+    )
 
     user = relationship("User", back_populates="settings")
 
@@ -151,3 +170,53 @@ class LogEntry(Base):
     level = Column(String(16), nullable=False)
     message = Column(Text, nullable=False)
     context = Column(JSON, default={})
+
+
+class OptionChain(Base):
+    """
+    Represents the real‑time option chain for a given symbol and expiry.
+
+    Option chains are useful for displaying option ladders and calculating IV
+    ranks.  They store the last traded price (ltp), implied volatility,
+    volume and open interest for each strike.
+    """
+
+    __tablename__ = "option_chains"
+
+    id = Column(Integer, primary_key=True)
+    symbol = Column(String(16), nullable=False)
+    expiry = Column(Date, nullable=False)
+    strike = Column(Numeric, nullable=False)
+    option_type = Column(String(1), nullable=False)
+    ltp = Column(Numeric)
+    iv = Column(Numeric)
+    volume = Column(Numeric)
+    oi = Column(Numeric)
+
+
+class HistoricalIV(Base):
+    """
+    Stores historical implied volatility values for calculating IV ranks.
+    """
+
+    __tablename__ = "historical_iv"
+
+    id = Column(Integer, primary_key=True)
+    symbol = Column(String(16), nullable=False)
+    date = Column(Date, nullable=False)
+    iv_value = Column(Numeric, nullable=False)
+
+
+class UserPortfolio(Base):
+    """
+    Aggregated positions and PnL per user across all instruments.
+    """
+
+    __tablename__ = "user_portfolios"
+
+    id = Column(Integer, primary_key=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
+    positions = Column(JSON, default=[])
+    pnl = Column(Numeric, default=0)
+
+    user = relationship("User", back_populates="portfolios")

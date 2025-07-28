@@ -1,8 +1,6 @@
-"""Nifty Insight Radar backend package.
-
-This module initialises the FastAPI application and exposes all routers.
-The heavy lifting is done in the subpackages `core`, `utils`, `routers` and
-`database`.  See `app/main.py` for the actual application instance.
 """
+Entry package for the Nifty Insight Radar application.
 
-from .main import app  # noqa: F401
+This file marks the `app` directory as a Python package so that modules
+within can be imported.  It does not contain any runtime logic.
+"""

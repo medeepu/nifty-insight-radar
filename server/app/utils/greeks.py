@@ -1,10 +1,12 @@
-"""Option pricing and Greeks computations.
+"""
+Enhanced option pricing and Greeks computations.
 
-This module provides helpers for parsing option tickers, computing
-Black–Scholes option values and Greeks, and estimating implied volatility
-through Newton–Raphson iterations.  It also includes functions to
-translate underlying price targets into option price targets using delta and
-gamma.
+This module extends the existing Greeks helper functions by adding
+moneyness calculations and convenience fields such as moneyness
+percentage and option status (ITM/OTM/ATM).  It retains the
+Black–Scholes formulas for European options and a simple implied
+volatility estimator.  Where real market option prices are not
+available this module falls back to the provided initial IV guess.
 """
 
 from __future__ import annotations
@@ -14,12 +16,7 @@ import math
 from dataclasses import dataclass
 from typing import Optional, Tuple
 
-# SciPy is not available in this environment.  Implement the standard normal
-# cumulative distribution function and probability density function using
-# approximations.  The Abramowitz and Stegun formula offers sufficient
-# accuracy for our purposes.
-import math
-
+# Reuse the normal CDF and PDF approximations from the original module
 
 def norm_cdf(x: float) -> float:
     """Cumulative distribution function for the standard normal distribution."""
@@ -165,7 +162,28 @@ def implied_volatility(
 
 @dataclass
 class OptionGreeks:
-    """Data class representing option price and Greeks."""
+    """Data class representing option price and Greeks with moneyness.
+
+    Attributes:
+        option_symbol: full option ticker (e.g. 'NIFTY250417C24000')
+        expiry: expiry date of the option
+        strike: strike price
+        option_type: 'C' for call, 'P' for put
+        underlying_price: current price of the underlying instrument
+        implied_volatility: calculated or guessed implied volatility
+        option_price: theoretical price computed from Black–Scholes
+        delta, gamma, theta, vega, rho: standard Greeks
+        intrinsic_value: intrinsic value of the option
+        time_value: time value portion of the option
+        entry_price: price used to enter the trade (usually equals option_price)
+        stop_price: recommended stop price based on delta translation
+        target_price: recommended target price based on delta translation
+        risk_reward: risk‑reward ratio
+        position_size: number of contracts
+        moneyness_percent: percentage moneyness (positive when ITM for calls,
+            negative when ITM for puts)
+        status: classification of the option as ITM, ATM or OTM
+    """
 
     option_symbol: str
     expiry: datetime.date
@@ -186,6 +204,8 @@ class OptionGreeks:
     target_price: float
     risk_reward: float
     position_size: int
+    moneyness_percent: float
+    status: str
 
 
 def compute_option_metrics(
@@ -215,24 +235,58 @@ def compute_option_metrics(
         risk_per_trade: capital risk per trade (monetary)
 
     Returns:
-        An OptionGreeks instance populated with pricing and Greeks.
+        An OptionGreeks instance populated with pricing and Greeks, including moneyness.
     """
     underlying, expiry_date, strike, opt_type = parse_option_symbol(option_symbol)
     today = datetime.date.today()
-    T = max((expiry_date - today).days, 0) / 365.0
-    # Compute implied volatility by matching current market option price.  For this example
-    # we do not have a live option price, so we approximate it using the initial guess.
+    days_to_expiry = max((expiry_date - today).days, 0)
+    T = days_to_expiry / 365.0
+
+    # Compute implied volatility by matching current market option price.
+    # When live option prices are unavailable, fall back to the provided guess.
     sigma = max(iv_guess, 0.0001)
-    delta_, gamma_, theta_, vega_, rho_, price = greeks(underlying_price, strike, T, r / 100.0, q / 100.0, sigma, opt_type)
+    delta_, gamma_, theta_, vega_, rho_, price = greeks(
+        underlying_price, strike, T, r / 100.0, q / 100.0, sigma, opt_type
+    )
+
     # Compute intrinsic and time value
-    intrinsic = max(underlying_price - strike, 0.0) if opt_type == "C" else max(strike - underlying_price, 0.0)
+    if opt_type == "C":
+        intrinsic = max(underlying_price - strike, 0.0)
+    else:
+        intrinsic = max(strike - underlying_price, 0.0)
     time_value = max(price - intrinsic, 0.0)
-    # Translate stop/target from underlying to option price using delta and gamma.  We ignore gamma for simplicity.
+
+    # Translate stop/target from underlying to option price using delta.
+    # Gamma is ignored for simplicity.
     option_stop = price - abs(underlying_price - stop_underlying) * abs(delta_)
     option_target = price + abs(target_underlying - underlying_price) * abs(delta_)
     # Ensure stop and target are not negative
     option_stop = max(option_stop, 0.01)
     option_target = max(option_target, option_stop + 0.01)
+
+    # Compute moneyness percentage and status
+    if strike > 0:
+        moneyness_percent = ((underlying_price - strike) / strike) * 100.0
+    else:
+        moneyness_percent = 0.0
+    # Determine option moneyness status
+    tolerance = 0.5  # percent difference considered ATM
+    if opt_type == "C":
+        if moneyness_percent > tolerance:
+            status = "ITM"
+        elif moneyness_percent < -tolerance:
+            status = "OTM"
+        else:
+            status = "ATM"
+    else:
+        # For puts invert the sign
+        if moneyness_percent < -tolerance:
+            status = "ITM"
+        elif moneyness_percent > tolerance:
+            status = "OTM"
+        else:
+            status = "ATM"
+
     return OptionGreeks(
         option_symbol=option_symbol,
         expiry=expiry_date,
@@ -253,4 +307,6 @@ def compute_option_metrics(
         target_price=option_target,
         risk_reward=risk_reward,
         position_size=position_size,
+        moneyness_percent=moneyness_percent,
+        status=status,
     )

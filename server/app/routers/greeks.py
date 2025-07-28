@@ -1,4 +1,11 @@
-"""Endpoint for option Greeks and pricing."""
+"""
+Endpoint for option Greeks and pricing (extended).
+
+This router wraps the enhanced option metrics computation and exposes
+additional fields such as moneyness percentage and option status.  It
+also utilises the user's settings to derive the risk free rate and other
+parameters where available.
+"""
 
 from __future__ import annotations
 
@@ -35,6 +42,13 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         .order_by(Signal.timestamp.desc())
         .first()
     )
+    # Default values
+    entry = underlying_price
+    stop = underlying_price * 0.98
+    target = underlying_price * 1.02
+    risk_reward = 2.0
+    position_size = 1
+    risk_per_trade = 1000.0
     if signal_entry:
         entry = float(signal_entry.entry_price)
         stop = float(signal_entry.stop_price)
@@ -42,22 +56,22 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         risk_reward = float(signal_entry.risk_reward)
         position_size = signal_entry.position_size
     else:
-        # Default stop and target: ±2% moves
-        entry = underlying_price
-        stop = underlying_price * 0.98
-        target = underlying_price * 1.02
-        risk_reward = 2.0
-        # Determine position size from settings or fallback
+        # Derive position size from user settings if available
         settings_obj = db.query(UserSettings).first()
-        risk_per_trade = float(settings_obj.risk_per_trade) if settings_obj else 1000.0
+        if settings_obj:
+            try:
+                risk_dict = settings_obj.risk_settings or {}
+                risk_per_trade = float(risk_dict.get("riskPerTrade", 1000.0))
+            except Exception:
+                risk_per_trade = float(settings_obj.risk_per_trade or 1000.0)
         risk = abs(entry - stop)
         position_size = int(risk_per_trade / risk) if risk > 0 else 0
     # Rate and dividend yield
     settings = get_settings()
-    r = 6.01  # risk‑free default if not available
+    # Use environment or settings for risk free rate if provided
+    r = getattr(settings, "risk_free_rate", 6.01)
     q = 0.0
     iv_guess = 0.25
-    # risk_per_trade and risk_reward may come from latest signal; set
     option_metrics = compute_option_metrics(
         optionSymbol,
         underlying_price,
@@ -68,7 +82,7 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         position_size,
         stop,
         target,
-        risk_per_trade=1000.0,
+        risk_per_trade=risk_per_trade,
     )
     return GreeksData(
         option_symbol=option_metrics.option_symbol,
@@ -90,4 +104,6 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         target_price=option_metrics.target_price,
         risk_reward=option_metrics.risk_reward,
         position_size=option_metrics.position_size,
+        moneyness_percent=option_metrics.moneyness_percent,
+        status=option_metrics.status,
     )
