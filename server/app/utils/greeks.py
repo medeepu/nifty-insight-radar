@@ -310,3 +310,50 @@ def compute_option_metrics(
         moneyness_percent=moneyness_percent,
         status=status,
     )
+
+
+def compute_iv_rank(
+    symbol: str,
+    current_iv: float,
+    db_session,
+    lookback_days: int = 30,
+) -> Optional[float]:
+    """Computes the percentile rank of ``current_iv`` against recent history.
+
+    The function looks up the latest ``lookback_days`` entries from the
+    ``HistoricalIV`` table for the given ``symbol``.  It then appends
+    ``current_iv`` to the list and computes the rank of ``current_iv`` as
+    a percentage from 0 to 100.  A higher rank means the current IV is
+    high relative to recent history.
+
+    Args:
+        symbol: Underlying ticker symbol
+        current_iv: Implied volatility to rank
+        db_session: SQLAlchemy session for querying
+        lookback_days: Number of historical data points to consider
+
+    Returns:
+        The IV rank as a float between 0 and 100, or ``None`` if there is
+        insufficient historical data.
+    """
+    try:
+        from ..models import HistoricalIV  # Local import to avoid circular deps
+    except Exception:
+        return None
+    if current_iv is None:
+        return None
+    query = (
+        db_session.query(HistoricalIV.iv_value)
+        .filter(HistoricalIV.symbol == symbol)
+        .order_by(HistoricalIV.date.desc())
+        .limit(lookback_days)
+    )
+    historical_values = [row[0] for row in query.all() if row[0] is not None]
+    if not historical_values:
+        return None
+    # Include the current IV in the distribution
+    values = sorted(historical_values + [current_iv])
+    # Rank is the index of current_iv divided by the number of intervals
+    rank = values.index(current_iv)
+    iv_rank = (rank / (len(values) - 1)) * 100.0 if len(values) > 1 else 50.0
+    return iv_rank

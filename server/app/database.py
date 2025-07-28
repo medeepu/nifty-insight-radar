@@ -1,42 +1,45 @@
-"""Database engine and session management.
+"""
+Simple SQLAlchemy session setup for the development server.
 
-This module sets up the SQLAlchemy engine and session factory.  It can
-connect to either PostgreSQL or SQLite depending on the configuration.
+This module defines a SQLAlchemy engine and sessionmaker for use with
+FastAPI dependency injection.  In a real deployment environment you
+should customise the ``DATABASE_URL`` and connect arguments to match
+your database backend.
 """
 
 from __future__ import annotations
 
+from typing import Generator
+
 from sqlalchemy import create_engine
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-
-from .core.config import get_settings
+from sqlalchemy.orm import declarative_base, sessionmaker
 
 
-settings = get_settings()
+# Configure your database connection string here.  SQLite is used by
+# default for convenience.
+DATABASE_URL = "sqlite:///./app.db"
 
-# Create the SQLAlchemy engine.  If a PostgreSQL URL is provided, use it,
-# otherwise fall back to an in‑memory SQLite database for development and
-# testing.  SQLite is not suitable for production but avoids the need for
-# external services during development.
-DATABASE_URL = settings.database_url or "sqlite:///./nifty.db"
+# When using SQLite in multithreaded applications (as with FastAPI) the
+# ``check_same_thread`` flag must be set to ``False``.
+engine = create_engine(
+    DATABASE_URL, connect_args={"check_same_thread": False}
+)
 
-connect_args = {}
-if DATABASE_URL.startswith("sqlite"):  # pragma: no cover
-    # Required for SQLite to work in a multithreaded environment
-    connect_args = {"check_same_thread": False}
-
-engine = create_engine(DATABASE_URL, connect_args=connect_args)
-
-# Declare the base class for ORM models
-Base = declarative_base()
-
-# Configure the session factory
+# Create a configured session class.  ``autocommit`` and ``autoflush`` are
+# disabled to let SQLAlchemy manage transactions explicitly.
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
+# Base class for declarative models.  All SQLAlchemy models should
+# inherit from this.
+Base = declarative_base()
 
-def get_db():
-    """Dependency that yields a database session and ensures it is closed."""
+
+def get_db() -> Generator[sessionmaker, None, None]:
+    """Yield a new database session for each request.
+
+    This function is intended for use as a FastAPI dependency.  It
+    ensures that sessions are properly closed after use.
+    """
     db = SessionLocal()
     try:
         yield db

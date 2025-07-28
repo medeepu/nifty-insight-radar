@@ -16,7 +16,7 @@ from sqlalchemy.orm import Session
 from ..database import get_db
 from ..schemas import GreeksData
 from ..models import Signal, UserSettings
-from ..utils.greeks import compute_option_metrics, parse_option_symbol
+from ..utils.greeks import compute_option_metrics, compute_iv_rank, parse_option_symbol
 from ..utils.data_fetcher import get_current_price
 from ..core.config import get_settings
 
@@ -84,6 +84,27 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         target,
         risk_per_trade=risk_per_trade,
     )
+    # Compute IV rank from historical implied volatilities
+    try:
+        iv_rank = compute_iv_rank(underlying_symbol, option_metrics.implied_volatility, db)
+    except Exception:
+        iv_rank = None
+    # Fetch the real last traded price of this option if present in the option chain table
+    try:
+        from ..models import OptionChain
+        market_record = (
+            db.query(OptionChain)
+            .filter(
+                OptionChain.symbol == underlying_symbol,
+                OptionChain.expiry == expiry,
+                OptionChain.strike == strike,
+                OptionChain.option_type == option_type,
+            )
+            .first()
+        )
+        market_option_price = float(market_record.ltp) if market_record else None
+    except Exception:
+        market_option_price = None
     return GreeksData(
         option_symbol=option_metrics.option_symbol,
         expiry=option_metrics.expiry,
@@ -106,4 +127,6 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         position_size=option_metrics.position_size,
         moneyness_percent=option_metrics.moneyness_percent,
         status=option_metrics.status,
+        iv_rank=iv_rank,
+        market_option_price=market_option_price,
     )

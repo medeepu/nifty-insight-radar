@@ -75,6 +75,13 @@ class PriceData(BaseModel):
     symbol: str
     price: float
     timestamp: datetime.datetime
+    # The absolute change from the previous close.  When unavailable this
+    # field is ``None``.  Many client widgets rely on this to display
+    # up/down arrows and colour coding.
+    change: Optional[float] = None
+    # Percentage change from the previous close.  Expressed as a number
+    # between –100 and +∞.  When unavailable this field is ``None``.
+    percent_change: Optional[float] = None
 
 
 class Candle(BaseModel):
@@ -194,6 +201,12 @@ class GreeksData(BaseModel):
     position_size: int
     moneyness_percent: float
     status: str
+    # The implied volatility rank (0–100) computed over a recent lookback
+    # period.  When there is insufficient history this may be ``None``.
+    iv_rank: Optional[float] = None
+    # The real market price of the option (last traded price).  This field
+    # allows the front‑end to compare theoretical and actual prices.
+    market_option_price: Optional[float] = None
 
 
 # ---------------------------------------------------------------------------
