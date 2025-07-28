@@ -241,6 +241,32 @@ class RiskMetrics(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Volatility analytics
+# ---------------------------------------------------------------------------
+
+class SkewPoint(BaseModel):
+    strike: float
+    call_iv: Optional[float] = None
+    put_iv: Optional[float] = None
+
+
+class SkewData(BaseModel):
+    symbol: str
+    expiry: datetime.date
+    points: List[SkewPoint]
+
+
+class TermStructurePoint(BaseModel):
+    expiry: datetime.date
+    iv: float
+
+
+class TermStructureData(BaseModel):
+    symbol: str
+    term_structure: List[TermStructurePoint]
+
+
+# ---------------------------------------------------------------------------
 # Broker & Trading
 # ---------------------------------------------------------------------------
 

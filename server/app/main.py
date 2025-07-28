@@ -16,7 +16,19 @@ from fastapi import FastAPI
 
 from .database import engine
 from .models import Base  # noqa: F401
-from .routers import greeks, indicators, price, settings, ws, levels, signal, candles, logs, risk
+from .routers import (
+    greeks,
+    indicators,
+    price,
+    settings,
+    ws,
+    levels,
+    signal,
+    candles,
+    logs,
+    risk,
+    volatility,
+)
 
 # Create the FastAPI application
 app = FastAPI(title="Nifty Insight Radar API", version="0.2.0")
@@ -35,6 +47,7 @@ app.include_router(signal.router, prefix="/api")
 app.include_router(candles.router, prefix="/api")
 app.include_router(logs.router, prefix="/api")
 app.include_router(risk.router, prefix="/api")
+app.include_router(volatility.router, prefix="/api")
 
 # Register WebSocket routers without a prefix (WS routes must be absolute)
 app.include_router(ws.router)

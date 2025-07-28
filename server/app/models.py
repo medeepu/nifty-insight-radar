@@ -23,6 +23,7 @@ from sqlalchemy import (
     JSON,
 )
 from sqlalchemy.orm import relationship
+from sqlalchemy import Index
 
 from .database import Base
 
@@ -220,3 +221,19 @@ class UserPortfolio(Base):
     pnl = Column(Numeric, default=0)
 
     user = relationship("User", back_populates="portfolios")
+
+# ---------------------------------------------------------------------------
+# Table indices for performance
+# ---------------------------------------------------------------------------
+
+# Composite index on signals for fast retrieval by symbol/time
+Index('ix_signals_symbol_timestamp', Signal.symbol, Signal.timestamp)
+
+# Composite index on indicators for fast retrieval by symbol/time
+Index('ix_indicators_symbol_timestamp', IndicatorSnapshot.symbol, IndicatorSnapshot.timestamp)
+
+# Composite index on option chains for strike lookups
+Index('ix_option_chain_symbol_expiry_strike', OptionChain.symbol, OptionChain.expiry, OptionChain.strike)
+
+# Index on user settings by user_id
+Index('ix_user_settings_user_id', UserSettings.user_id)
