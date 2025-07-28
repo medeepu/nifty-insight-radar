@@ -112,6 +112,9 @@ export interface GreeksData {
   timeValue: number;
   status: 'ATM' | 'ITM' | 'OTM';
   moneynessPercent: number;
+  breakEven: number;
+  maxProfit: number | typeof Infinity;
+  maxLoss: number;
 }
 
 // Backtesting

@@ -53,22 +53,22 @@ export const GreeksCard: React.FC = () => {
   const getMoneynessBadge = () => {
     if (!greeks) return { variant: 'secondary', text: '--' };
     
-    switch (greeks.status) {
-      case 'ITM':
-        return { variant: 'default', text: 'ITM' };
-      case 'ATM':
-        return { variant: 'secondary', text: 'ATM' };
-      case 'OTM':
-        return { variant: 'outline', text: 'OTM' };
-      default:
-        return { variant: 'secondary', text: '--' };
-    }
+    const status = greeks.status || 'ATM';
+    const variants = {
+      'ITM': { variant: 'default', text: 'ITM', color: 'text-bull' },
+      'ATM': { variant: 'secondary', text: 'ATM', color: 'text-neutral' },
+      'OTM': { variant: 'outline', text: 'OTM', color: 'text-bear' },
+    };
+    
+    return variants[status] || { variant: 'secondary', text: '--', color: 'text-muted-foreground' };
   };
 
   const getIVRankColor = () => {
     if (!greeks) return 'text-muted-foreground';
-    // Mock IV Rank calculation
-    const ivRank = 65; // This would come from the API
+    // Calculate IV Rank based on current IV vs historical range
+    const currentIV = greeks.iv * 100;
+    const ivRank = Math.min(Math.max((currentIV - 10) / (35 - 10) * 100, 0), 100); // Mock calculation
+    
     if (ivRank > 80) return 'text-bear';
     if (ivRank > 50) return 'text-neutral';
     return 'text-bull';

@@ -368,20 +368,85 @@ export const useSettingsStore = create<SettingsStore>()(
       // Server Persistence
       saveToServer: async () => {
         try {
-          // TODO: Implement API call to save settings
-          console.log('Saving settings to server...', get().settings);
+          const response = await fetch('/api/user/settings', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
+            },
+            body: JSON.stringify({
+              // Transform client settings to server format
+              risk_capital: get().settings.budgetRisk.maxBudget,
+              risk_per_trade: get().settings.budgetRisk.maxLossPerTrade,
+              default_timeframe: get().settings.chart.timeframe,
+              advanced_filters: {
+                riskRewardRatio: get().settings.core.riskRewardRatio,
+                strikeSelectionMode: get().settings.core.strikeSelectionMode,
+                tradeDirection: get().settings.core.tradeDirection,
+              },
+              indicator_prefs: {
+                cpr: get().settings.indicators.cpr,
+                ema: get().settings.indicators.ema,
+                vwap: get().settings.indicators.vwap,
+                rsi: get().settings.indicators.rsi,
+                stochastic: get().settings.indicators.stochastic,
+              },
+            }),
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to save settings');
+          }
+          
           set({ unsavedChanges: false });
         } catch (error) {
           console.error('Failed to save settings:', error);
+          throw error;
         }
       },
       
       loadFromServer: async () => {
         try {
-          // TODO: Implement API call to load settings
-          console.log('Loading settings from server...');
+          const response = await fetch('/api/user/settings', {
+            headers: {
+              'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
+            },
+          });
+          
+          if (!response.ok) {
+            throw new Error('Failed to load settings');
+          }
+          
+          const serverSettings = await response.json();
+          
+          // Transform server settings to client format
+          set((state) => ({
+            settings: {
+              ...state.settings,
+              budgetRisk: {
+                ...state.settings.budgetRisk,
+                maxBudget: serverSettings.risk_capital || state.settings.budgetRisk.maxBudget,
+                maxLossPerTrade: serverSettings.risk_per_trade || state.settings.budgetRisk.maxLossPerTrade,
+              },
+              chart: {
+                ...state.settings.chart,
+                timeframe: serverSettings.default_timeframe || state.settings.chart.timeframe,
+              },
+              core: {
+                ...state.settings.core,
+                riskRewardRatio: serverSettings.advanced_filters?.riskRewardRatio || state.settings.core.riskRewardRatio,
+                strikeSelectionMode: serverSettings.advanced_filters?.strikeSelectionMode || state.settings.core.strikeSelectionMode,
+                tradeDirection: serverSettings.advanced_filters?.tradeDirection || state.settings.core.tradeDirection,
+              },
+              indicators: {
+                ...state.settings.indicators,
+                ...serverSettings.indicator_prefs,
+              },
+            },
+          }));
         } catch (error) {
           console.error('Failed to load settings:', error);
+          // Don't throw here, just log the error and use default settings
         }
       },
     }),

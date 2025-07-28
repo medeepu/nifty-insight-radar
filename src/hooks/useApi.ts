@@ -226,24 +226,48 @@ export const useGreeks = (optionSymbol: string) => {
     queryKey: [QUERY_KEYS.GREEKS, optionSymbol],
     queryFn: async (): Promise<GreeksData> => {
       const response = await apiClient.get(`/greeks?optionSymbol=${optionSymbol}`);
-      // Transform server response to match client expectations
+      
+      // Handle case where server returns error or no data
+      if (!response.data) {
+        throw new Error('No Greeks data available');
+      }
+      
+      // Calculate moneyness status and percentage
+      const underlyingPrice = response.data.underlying_price;
+      const strike = response.data.strike;
+      const optionType = response.data.option_type;
+      
+      let status: 'ATM' | 'ITM' | 'OTM';
+      if (optionType === 'C') {
+        status = underlyingPrice > strike ? 'ITM' : underlyingPrice < strike ? 'OTM' : 'ATM';
+      } else {
+        status = underlyingPrice < strike ? 'ITM' : underlyingPrice > strike ? 'OTM' : 'ATM';
+      }
+      
+      const moneynessPercent = ((underlyingPrice - strike) / strike) * 100;
+      
       return {
         delta: response.data.delta,
         gamma: response.data.gamma,
         theta: response.data.theta,
         vega: response.data.vega,
         rho: response.data.rho,
-        iv: response.data.implied_volatility, // Server uses 'implied_volatility'
-        theoreticalPrice: response.data.option_price, // Server uses 'option_price'
+        iv: response.data.implied_volatility,
+        theoreticalPrice: response.data.option_price,
         intrinsicValue: response.data.intrinsic_value,
         timeValue: response.data.time_value,
-        status: response.data.underlying_price > response.data.strike ? 'ITM' : 
-                response.data.underlying_price < response.data.strike ? 'OTM' : 'ATM',
-        moneynessPercent: ((response.data.underlying_price - response.data.strike) / response.data.strike) * 100
+        status,
+        moneynessPercent,
+        // Add additional fields that client expects
+        breakEven: optionType === 'C' ? strike + response.data.option_price : strike - response.data.option_price,
+        maxProfit: optionType === 'C' ? Infinity : strike - response.data.option_price,
+        maxLoss: response.data.option_price,
       };
     },
     enabled: !!optionSymbol,
-    //refetchInterval: 5000, // Update every 5 seconds
+    refetchInterval: 30000, // Update every 30 seconds to avoid excessive requests
+    retry: 3,
+    retryDelay: 1000,
   });
 };
 
