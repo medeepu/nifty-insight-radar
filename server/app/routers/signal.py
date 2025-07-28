@@ -1,40 +1,95 @@
-"""Endpoint for trade signal generation."""
+"""
+Signal generation endpoint.
+
+This router exposes an endpoint to compute a current trading signal for
+a given symbol and timeframe.  It uses simple heuristics based on RSI
+as implemented in ``utils.signals.generate_signal`` and returns the
+signal along with a confidence score.  The result can also be stored
+in the database and broadcast over the ``signal`` WebSocket channel.
+"""
 
 from __future__ import annotations
 
 import datetime
+import json
 from fastapi import APIRouter, Depends, HTTPException, Query
 from sqlalchemy.orm import Session
 
 from ..database import get_db
+from ..models import Signal as SignalModel
 from ..schemas import SignalData
-from ..utils.scenario_logic import generate_signal
-from ..models import Signal
+from ..utils.signals import generate_signal
+from ..utils.data_fetcher import get_current_price
+from ..websocket_manager import manager
 
 
 router = APIRouter()
 
 
-@router.get("/signal/current", response_model=SignalData, summary="Get the latest trade signal")
-async def current_signal(symbol: str = Query(...), db: Session = Depends(get_db)) -> SignalData:
-    """Calculates and returns the most recent trading signal for a symbol."""
-    signal_data = await generate_signal(symbol, db)
-    if signal_data.scenario == "None":
-        return signal_data
-    # Persist signal
-    db_signal = Signal(
-        timestamp=signal_data.timestamp,
-        symbol=signal_data.symbol,
-        scenario=signal_data.scenario,
-        direction=signal_data.direction,
-        entry_price=signal_data.entry_price,
-        stop_price=signal_data.stop_price,
-        target_price=signal_data.target_price,
-        risk_reward=signal_data.risk_reward,
-        position_size=signal_data.position_size,
-        confidence=signal_data.confidence,
-        reason=signal_data.reason,
+@router.get(
+    "/signal/current",
+    response_model=SignalData,
+    summary="Generate a simple BUY/SELL/NEUTRAL signal",
+)
+async def current_signal(
+    symbol: str = Query(..., description="Ticker symbol"),
+    timeframe: str = Query("5m", description="Candle timeframe (e.g. 5m, 15m, 1h)"),
+    db: Session = Depends(get_db),
+) -> SignalData:
+    """Computes a signal based on RSI and returns it.
+
+    The implementation here is intentionally basic: it fetches the
+    latest RSI and derives a direction and confidence.  It also
+    populates ``entry_price`` with the current price and uses a
+    symmetrical stop/target of ±1% for demonstration.  The result is
+    stored in the ``Signal`` table and broadcast on the WebSocket
+    channel.
+    """
+    # Compute the signal
+    direction, confidence, context = generate_signal(symbol, timeframe, db)
+    # Fetch current price
+    current_price = await get_current_price(symbol)
+    if current_price is None:
+        raise HTTPException(status_code=404, detail="Price not available")
+    # Simple stop/target: 1% away from current price
+    stop_price = current_price * (0.99 if direction == "BUY" else 1.01)
+    target_price = current_price * (1.01 if direction == "BUY" else 0.99)
+    risk_reward = 1.0 if stop_price == 0 else abs(target_price - current_price) / abs(current_price - stop_price)
+    position_size = 1  # placeholder
+    timestamp = datetime.datetime.utcnow()
+    # Persist the signal
+    signal_row = SignalModel(
+        timestamp=timestamp,
+        symbol=symbol,
+        scenario=timeframe,
+        direction=direction,
+        entry_price=current_price,
+        stop_price=stop_price,
+        target_price=target_price,
+        risk_reward=risk_reward,
+        position_size=position_size,
+        confidence=confidence,
+        reason=context.get("reason") if isinstance(context, dict) else None,
     )
-    db.add(db_signal)
+    db.add(signal_row)
     db.commit()
-    return signal_data
+    # Prepare response
+    response = SignalData(
+        timestamp=timestamp,
+        symbol=symbol,
+        scenario=timeframe,
+        direction=direction,
+        entry_price=current_price,
+        stop_price=stop_price,
+        target_price=target_price,
+        risk_reward=risk_reward,
+        position_size=position_size,
+        confidence=confidence,
+        reason=context.get("reason") if isinstance(context, dict) else None,
+    )
+    # Broadcast over WebSocket
+    try:
+        await manager.broadcast("signal", json.dumps(response.dict()))
+    except Exception:
+        pass
+    return response

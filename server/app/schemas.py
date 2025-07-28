@@ -225,6 +225,22 @@ class LogsResponse(BaseModel):
 
 
 # ---------------------------------------------------------------------------
+# Risk Management
+# ---------------------------------------------------------------------------
+
+class RiskMetrics(BaseModel):
+    symbol: str
+    timeframe: str
+    entry_price: float
+    stop_price: float
+    target_price: float
+    position_size: int
+    risk_per_trade: float
+    max_loss: float
+    potential_profit: float
+
+
+# ---------------------------------------------------------------------------
 # Broker & Trading
 # ---------------------------------------------------------------------------
 

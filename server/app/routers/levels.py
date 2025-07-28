@@ -1,141 +1,99 @@
-"""Endpoints for pivot levels (daily, weekly, monthly)."""
+"""
+Technical levels endpoints (daily and intraday).
+
+The price analysis card and other dashboard components need central
+pivot, support and resistance levels to display market context.  This
+router computes such levels from historical candles using the functions
+in ``utils.levels``.  Daily levels use the previous day's OHLC, while
+intraday levels can use the last completed session's high/low/close on
+the selected timeframe.
+"""
 
 from __future__ import annotations
 
 import datetime
-from fastapi import APIRouter, HTTPException, Query, Depends
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, HTTPException, Query
 
-from ..database import get_db
-from ..schemas import DailyLevels
-from ..models import LevelsDaily
-from ..utils.cpr import compute_cpr_levels
-from ..utils.data_fetcher import get_candles
+from ..schemas import DailyLevels, Candle
+from ..utils.levels import compute_daily_levels
+from ..utils.data_fetcher import get_historical_candles
 
 
 router = APIRouter()
 
 
-async def compute_levels_for_period(symbol: str, period: str) -> dict:
-    """Computes pivot and CPR levels for a given period (daily, weekly, monthly)."""
-    now = datetime.datetime.utcnow()
-    if period == "daily":
-        start_dt = now - datetime.timedelta(days=2)
-    elif period == "weekly":
-        start_dt = now - datetime.timedelta(days=14)
-    else:  # monthly
-        start_dt = now - datetime.timedelta(days=60)
-    candles = await get_candles(symbol, timeframe="1d", start=start_dt.isoformat(), end=now.isoformat())
-    if len(candles) < 2:
-        raise HTTPException(status_code=404, detail=f"Not enough data for {period} levels")
-    # Determine the previous period's candles
-    if period == "daily":
-        prev_candle = candles[-2]
-    elif period == "weekly":
-        # Group by week number
-        last_week = candles[-2].time.isocalendar()[1]
-        prev_week_candles = [c for c in candles if c.time.isocalendar()[1] == last_week]
-        prev_candle = prev_week_candles[-1] if prev_week_candles else candles[-2]
-    else:
-        # monthly
-        last_month = candles[-2].time.month
-        prev_month_candles = [c for c in candles if c.time.month == last_month]
-        prev_candle = prev_month_candles[-1] if prev_month_candles else candles[-2]
-    prev_high = max(c.high for c in candles[:-1])
-    prev_low = min(c.low for c in candles[:-1])
-    prev_close = prev_candle.close
-    levels = compute_cpr_levels(prev_high, prev_low, prev_close)
-    return levels
+@router.get(
+    "/levels/daily",
+    response_model=DailyLevels,
+    summary="Compute daily pivot and support/resistance levels",
+)
+async def daily_levels(
+    symbol: str = Query(..., description="Ticker symbol"),
+) -> DailyLevels:
+    """Calculates daily pivot levels based on the previous day's candle.
 
-
-@router.get("/levels/daily", response_model=DailyLevels, summary="Get daily CPR levels")
-async def daily_levels(symbol: str = Query(...), db: Session = Depends(get_db)) -> DailyLevels:
-    today = datetime.date.today()
-    entry = db.query(LevelsDaily).filter(LevelsDaily.symbol == symbol, LevelsDaily.date == today).first()
-    if entry:
-        return DailyLevels(
-            symbol=symbol,
-            date=today,
-            pivot=float(entry.pivot),
-            bc=float(entry.bc),
-            tc=float(entry.tc),
-            s1=float(entry.s1),
-            s2=float(entry.s2),
-            s3=float(entry.s3),
-            r1=float(entry.r1),
-            r2=float(entry.r2),
-            r3=float(entry.r3),
-            cpr_type=entry.cpr_type,
-        )
-    # Compute levels and persist
-    levels = await compute_levels_for_period(symbol, "daily")
-    entry = LevelsDaily(
-        date=today,
-        symbol=symbol,
-        pivot=levels["pivot"],
-        bc=levels["bc"],
-        tc=levels["tc"],
-        s1=levels["s1"],
-        s2=levels["s2"],
-        s3=levels["s3"],
-        r1=levels["r1"],
-        r2=levels["r2"],
-        r3=levels["r3"],
-        cpr_type=levels["cpr_type"],
+    The endpoint fetches the last daily candle for the given symbol via
+    ``get_historical_candles`` (which should be implemented to query
+    a real market data source).  It then computes the pivot and central
+    pivot range using ``compute_daily_levels``.
+    """
+    # Determine the previous trading day.  For simplicity we subtract
+    # one calendar day; in production use exchange calendars.
+    end = datetime.datetime.utcnow().date()
+    start = end - datetime.timedelta(days=2)
+    candles = await get_historical_candles(
+        symbol,
+        start.isoformat(),
+        end.isoformat(),
+        timeframe="1d",
+        limit=2,
     )
-    db.add(entry)
-    db.commit()
+    if not candles:
+        raise HTTPException(status_code=404, detail="No candle data available")
+    previous_candle = candles[-2] if len(candles) >= 2 else candles[-1]
+    levels = compute_daily_levels(previous_candle)
     return DailyLevels(
         symbol=symbol,
-        date=today,
-        pivot=levels["pivot"],
-        bc=levels["bc"],
-        tc=levels["tc"],
-        s1=levels["s1"],
-        s2=levels["s2"],
-        s3=levels["s3"],
-        r1=levels["r1"],
-        r2=levels["r2"],
-        r3=levels["r3"],
-        cpr_type=levels["cpr_type"],
+        date=previous_candle.time.date(),
+        **levels,
+        cpr_type="classic",
     )
 
 
-@router.get("/levels/weekly", response_model=DailyLevels, summary="Get weekly CPR levels")
-async def weekly_levels(symbol: str = Query(...)) -> DailyLevels:
-    levels = await compute_levels_for_period(symbol, "weekly")
-    today = datetime.date.today()
-    return DailyLevels(
-        symbol=symbol,
-        date=today,
-        pivot=levels["pivot"],
-        bc=levels["bc"],
-        tc=levels["tc"],
-        s1=levels["s1"],
-        s2=levels["s2"],
-        s3=levels["s3"],
-        r1=levels["r1"],
-        r2=levels["r2"],
-        r3=levels["r3"],
-        cpr_type=levels["cpr_type"],
+# Intraday levels follow the same pattern but use a shorter timeframe (e.g. 5m).
+@router.get(
+    "/levels/intraday",
+    response_model=DailyLevels,
+    summary="Compute intraday pivot and support/resistance levels",
+)
+async def intraday_levels(
+    symbol: str = Query(..., description="Ticker symbol"),
+    timeframe: str = Query("15m", description="Intraday timeframe (e.g. 5m, 15m)"),
+) -> DailyLevels:
+    """Calculates intraday pivot levels based on the last completed candle.
+
+    This endpoint behaves similarly to the daily version but uses the
+    specified intraday timeframe.  The number of candles fetched is
+    configurable; here we retrieve the two most recent candles and
+    compute levels from the penultimate one to avoid using a partial
+    candle.
+    """
+    end = datetime.datetime.utcnow()
+    start = end - datetime.timedelta(hours=3)  # fetch recent hours
+    candles = await get_historical_candles(
+        symbol,
+        start.isoformat(),
+        end.isoformat(),
+        timeframe=timeframe,
+        limit=2,
     )
-
-
-@router.get("/levels/monthly", response_model=DailyLevels, summary="Get monthly CPR levels")
-async def monthly_levels(symbol: str = Query(...)) -> DailyLevels:
-    levels = await compute_levels_for_period(symbol, "monthly")
-    today = datetime.date.today()
+    if not candles:
+        raise HTTPException(status_code=404, detail="No intraday candles available")
+    previous_candle = candles[-2] if len(candles) >= 2 else candles[-1]
+    levels = compute_daily_levels(previous_candle)
     return DailyLevels(
         symbol=symbol,
-        date=today,
-        pivot=levels["pivot"],
-        bc=levels["bc"],
-        tc=levels["tc"],
-        s1=levels["s1"],
-        s2=levels["s2"],
-        s3=levels["s3"],
-        r1=levels["r1"],
-        r2=levels["r2"],
-        r3=levels["r3"],
-        cpr_type=levels["cpr_type"],
+        date=previous_candle.time.date(),
+        **levels,
+        cpr_type="intraday",
     )
