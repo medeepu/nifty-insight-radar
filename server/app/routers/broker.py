@@ -1,69 +1,52 @@
-"""Endpoints for broker credential management."""
+"""
+Broker API integration endpoints (stubs).
+
+This router exposes endpoints expected by the client for placing
+orders and retrieving positions via broker APIs such as Zerodha or
+Dhan.  Currently these functions return placeholder responses.  You
+should replace the stub logic with actual SDK calls and handle
+authentication, order placement and portfolio queries securely.
+"""
 
 from __future__ import annotations
 
-import base64
-from fastapi import APIRouter, Depends, Header, HTTPException
-from sqlalchemy.orm import Session
+from fastapi import APIRouter, Depends, HTTPException
 
+from ..schemas import TradeOrder, TradeOrderResponse
+from ..models import BrokerCredentials
 from ..database import get_db
-from ..models import BrokerCredentials, User
-from ..schemas import BrokerCredentialsModel
-from ..core.security import decode_token
-from ..crud import get_user_by_username
+from sqlalchemy.orm import Session
 
 
 router = APIRouter()
 
 
-def get_current_user(token: str = Header(..., alias="Authorization"), db: Session = Depends(get_db)) -> User:
-    if not token or not token.lower().startswith("bearer"):
-        raise HTTPException(status_code=401, detail="Missing authentication token")
-    _, _, jwt_token = token.partition(" ")
-    payload = decode_token(jwt_token)
-    username = payload.get("sub") if payload else None
-    if not username:
-        raise HTTPException(status_code=401, detail="Invalid token")
-    user = get_user_by_username(db, username)
-    if not user:
-        raise HTTPException(status_code=401, detail="User not found")
-    return user
-
-
-def _encrypt(value: str, key: str) -> str:
-    """A naive reversible obfuscation using XOR and base64 encoding."""
-    key_bytes = key.encode()
-    value_bytes = value.encode()
-    encrypted = bytes([b ^ key_bytes[i % len(key_bytes)] for i, b in enumerate(value_bytes)])
-    return base64.b64encode(encrypted).decode()
-
-
-@router.post("/broker/keys", response_model=dict, summary="Store broker API keys")
-def store_broker_keys(
-    credentials: BrokerCredentialsModel,
-    current_user: User = Depends(get_current_user),
+@router.post(
+    "/broker/place-order",
+    response_model=TradeOrderResponse,
+    summary="Place an order via the connected broker (stub)",
+)
+async def place_order(
+    order: TradeOrder,
     db: Session = Depends(get_db),
-) -> dict:
-    # Encrypt keys
-    from ..core.config import get_settings
-    settings = get_settings()
-    api_key_enc = _encrypt(credentials.api_key, settings.encryption_key)
-    api_secret_enc = _encrypt(credentials.api_secret, settings.encryption_key)
-    refresh_enc = _encrypt(credentials.refresh_token or "", settings.encryption_key)
-    existing = db.query(BrokerCredentials).filter(BrokerCredentials.user_id == current_user.id).first()
-    if existing:
-        existing.broker_name = credentials.broker_name
-        existing.api_key = api_key_enc
-        existing.api_secret = api_secret_enc
-        existing.refresh_token = refresh_enc
-    else:
-        existing = BrokerCredentials(
-            user_id=current_user.id,
-            broker_name=credentials.broker_name,
-            api_key=api_key_enc,
-            api_secret=api_secret_enc,
-            refresh_token=refresh_enc,
-        )
-        db.add(existing)
-    db.commit()
-    return {"ok": True}
+) -> TradeOrderResponse:
+    """
+    Places a trade order through the user's connected broker account.
+
+    This stub does not execute any real trades.  In production you
+    would use the broker SDK (e.g. Kite Connect for Zerodha) to send
+    the order and handle errors accordingly.  Broker credentials should
+    be securely stored and retrieved from the database.
+    """
+    # Look up broker credentials for the user (ID=1 for now)
+    creds = db.query(BrokerCredentials).filter(BrokerCredentials.user_id == 1).first()
+    if creds is None:
+        raise HTTPException(status_code=400, detail="No broker credentials available")
+    # Return a placeholder response; do not actually place the order
+    return TradeOrderResponse(
+        ok=False,
+        order_id=None,
+        filled_quantity=0,
+        avg_price=None,
+        pnl=None,
+    )

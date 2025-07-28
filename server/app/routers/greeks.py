@@ -105,6 +105,21 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         market_option_price = float(market_record.ltp) if market_record else None
     except Exception:
         market_option_price = None
+    # Derive additional option metrics expected by the client.  The
+    # theoretical price corresponds to the calculated option price.  Break‑even
+    # is strike ± premium paid.  For calls the maximum profit is
+    # theoretically unlimited (``None`` indicates unlimited).  For puts the
+    # maximum profit is limited to strike minus premium.  Maximum loss is
+    # always the premium paid.
+    theoretical_price = option_metrics.option_price
+    if option_metrics.option_type == "C":
+        break_even = option_metrics.strike + option_metrics.option_price
+        max_profit = None  # Unlimited upside for a call
+        max_loss = option_metrics.option_price
+    else:
+        break_even = option_metrics.strike - option_metrics.option_price
+        max_profit = option_metrics.strike - option_metrics.option_price
+        max_loss = option_metrics.option_price
     return GreeksData(
         option_symbol=option_metrics.option_symbol,
         expiry=option_metrics.expiry,
@@ -129,4 +144,8 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         status=option_metrics.status,
         iv_rank=iv_rank,
         market_option_price=market_option_price,
+        theoreticalPrice=theoretical_price,
+        breakEven=break_even,
+        maxProfit=max_profit,
+        maxLoss=max_loss,
     )

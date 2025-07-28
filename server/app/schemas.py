@@ -162,10 +162,23 @@ class IndicatorSeriesData(BaseModel):
 
 
 class SignalData(BaseModel):
+    """
+    Representation of a trading signal returned by the server.
+
+    The client expects the field ``signal`` to convey the suggested trade
+    direction (``'BUY'``, ``'SELL'`` or ``'NEUTRAL'``).  For backward
+    compatibility the internal SQLAlchemy model still uses ``direction``,
+    but this schema exposes only ``signal``.  All other numeric fields
+    mirror the underlying database columns.
+    """
+
     timestamp: datetime.datetime
     symbol: str
     scenario: str
-    direction: str
+    # Client‑friendly field representing the direction of the trade.  It
+    # maps to the ``direction`` column on the ``Signal`` table.  Allowed
+    # values are 'BUY', 'SELL' or 'NEUTRAL'.
+    signal: str
     entry_price: float
     stop_price: float
     target_price: float
@@ -207,6 +220,14 @@ class GreeksData(BaseModel):
     # The real market price of the option (last traded price).  This field
     # allows the front‑end to compare theoretical and actual prices.
     market_option_price: Optional[float] = None
+    # Client‑friendly naming: the theoretical option price.
+    theoreticalPrice: Optional[float] = None
+    # Break‑even point at expiry (strike ± option cost).
+    breakEven: Optional[float] = None
+    # Maximum possible profit (e.g. unlimited for calls).  ``None`` means unlimited.
+    maxProfit: Optional[float] = None
+    # Maximum loss (the option premium paid).
+    maxLoss: Optional[float] = None
 
 
 # ---------------------------------------------------------------------------
@@ -291,3 +312,31 @@ class TradeOrderResponse(BaseModel):
     filled_quantity: Optional[int] = None
     avg_price: Optional[float] = None
     pnl: Optional[float] = None
+
+
+# ---------------------------------------------------------------------------
+# Backtesting & ML
+# ---------------------------------------------------------------------------
+
+class TradeResult(BaseModel):
+    """Result of a single trade in a backtest."""
+    entry_time: datetime.datetime
+    exit_time: datetime.datetime
+    entry_price: float
+    exit_price: float
+    quantity: int
+    pnl: float
+
+
+class BacktestResult(BaseModel):
+    """Summary of a backtest including equity curve and trades."""
+    equity_curve: List[Dict[str, float]]
+    trades: List[TradeResult]
+
+
+class MLInsight(BaseModel):
+    """Placeholder structure for machine learning insights."""
+    symbol: str
+    timeframe: str
+    notes: List[str]
+    confidence: float

@@ -74,11 +74,14 @@ async def current_signal(
     db.add(signal_row)
     db.commit()
     # Prepare response
+    # Build the API response.  The ``signal`` field maps to the internal
+    # ``direction``.  Do not expose the raw ``direction`` property to the
+    # client.
     response = SignalData(
         timestamp=timestamp,
         symbol=symbol,
         scenario=timeframe,
-        direction=direction,
+        signal=direction,
         entry_price=current_price,
         stop_price=stop_price,
         target_price=target_price,
@@ -89,7 +92,9 @@ async def current_signal(
     )
     # Broadcast over WebSocket
     try:
+        # Send the response dictionary over the ``signal`` WebSocket
         await manager.broadcast("signal", json.dumps(response.dict()))
     except Exception:
+        # Suppress any WebSocket errors from bubbling up
         pass
     return response

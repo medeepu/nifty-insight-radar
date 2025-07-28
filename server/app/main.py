@@ -28,6 +28,9 @@ from .routers import (
     logs,
     risk,
     volatility,
+    backtest,
+    ml as ml_router,
+    broker,
 )
 
 # Create the FastAPI application
@@ -48,6 +51,10 @@ app.include_router(candles.router, prefix="/api")
 app.include_router(logs.router, prefix="/api")
 app.include_router(risk.router, prefix="/api")
 app.include_router(volatility.router, prefix="/api")
+# New stubbed routers for backtesting, ML insights and broker orders
+app.include_router(backtest.router, prefix="/api")
+app.include_router(ml_router.router, prefix="/api")
+app.include_router(broker.router, prefix="/api")
 
 # Register WebSocket routers without a prefix (WS routes must be absolute)
 app.include_router(ws.router)
