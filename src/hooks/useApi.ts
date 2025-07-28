@@ -155,12 +155,40 @@ export const useMonthlyLevels = (symbol: string) => {
   });
 };
 
-// Indicators
+// Indicators - Handle both single values and arrays
 export const useIndicators = (symbol: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.INDICATORS, symbol],
     queryFn: async (): Promise<IndicatorData> => {
-      return apiClient.get(`/indicators?symbol=${symbol}`);
+      const response = await apiClient.get(`/indicators?symbol=${symbol}`);
+      // Transform server response to handle both single values and arrays
+      const transformIndicatorValue = (value: any) => {
+        if (typeof value === 'number') {
+          // Server returns single value, convert to array format for consistency
+          const timestamp = new Date().getTime();
+          return [{ time: timestamp, value }];
+        }
+        return value; // Already in array format
+      };
+
+      return {
+        timestamp: response.data.timestamp,
+        symbol: response.data.symbol,
+        ema: {
+          9: transformIndicatorValue(response.data.ema9),
+          21: transformIndicatorValue(response.data.ema21),
+          50: transformIndicatorValue(response.data.ema50),
+          200: transformIndicatorValue(response.data.ema200),
+        },
+        vwap: transformIndicatorValue(response.data.vwap),
+        rsi: transformIndicatorValue(response.data.rsi),
+        stoch: {
+          k: transformIndicatorValue(response.data.stoch_k),
+          d: transformIndicatorValue(response.data.stoch_d),
+        },
+        atr: transformIndicatorValue(response.data.atr),
+        ivRank: response.data.ivRank,
+      };
     },
     enabled: !!symbol,
     refetchInterval: 5000, // Update every 5 seconds
@@ -219,12 +247,23 @@ export const useGreeks = (optionSymbol: string) => {
   });
 };
 
-// ML Insights
+// ML Insights - Transform server response to match client expectations
 export const useMLInsight = (symbol: string) => {
   return useQuery({
     queryKey: [QUERY_KEYS.ML_INSIGHT, symbol],
     queryFn: async (): Promise<MLInsight> => {
-      return apiClient.get(`/ml/insight?symbol=${symbol}`);
+      const response = await apiClient.get(`/ml/insight?symbol=${symbol}`);
+      // Transform server response to match client expectations
+      return {
+        regime: response.data.regime,
+        confidence: response.data.rsi || 50, // Use RSI as confidence if not provided
+        notes: [
+          `Slope: ${response.data.slope?.toFixed(4) || 'N/A'}`,
+          `RSI: ${response.data.rsi?.toFixed(2) || 'N/A'}`,
+          `Market regime classification based on price slope and momentum`
+        ],
+        timestamp: response.data.timestamp,
+      };
     },
     enabled: !!symbol,
     staleTime: 60000, // 1 minute
@@ -242,12 +281,43 @@ export const useRecentLogs = (limit: number = 100) => {
   });
 };
 
-// User Settings
+// User Settings - Transform server flat structure to client nested structure
 export const useUserSettings = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.USER_SETTINGS],
     queryFn: async (): Promise<UserSettings> => {
-      return apiClient.get('/user/settings');
+      const response = await apiClient.get('/user/settings');
+      const serverData = response.data;
+      
+      // Transform server's flat structure to client's expected nested structure
+      return {
+        // Server fields (keep original for API calls)
+        risk_capital: serverData.risk_capital || 0,
+        risk_per_trade: serverData.risk_per_trade || 1000,
+        default_timeframe: serverData.default_timeframe || '5m',
+        advanced_filters: serverData.advanced_filters || {},
+        indicator_prefs: serverData.indicator_prefs || {},
+        
+        // Client-side nested structure for UI
+        theme: serverData.advanced_filters?.theme || 'dark',
+        defaultSymbol: serverData.advanced_filters?.defaultSymbol || 'NIFTY',
+        defaultTimeframe: serverData.default_timeframe || '5m',
+        riskSettings: {
+          maxBudget: serverData.risk_capital || 100000,
+          maxLossPerTrade: serverData.risk_per_trade || 1000,
+          riskRewardRatio: serverData.advanced_filters?.minRiskRewardRatio || 2.0,
+        },
+        displaySettings: {
+          showCPR: serverData.indicator_prefs?.showCPR !== false,
+          showEMA: serverData.indicator_prefs?.showEMA !== false,
+          showVWAP: serverData.indicator_prefs?.showVWAP !== false,
+          showPivots: serverData.indicator_prefs?.showPivots !== false,
+        },
+        notifications: {
+          signalAlerts: serverData.advanced_filters?.signalAlerts !== false,
+          riskAlerts: serverData.advanced_filters?.riskAlerts !== false,
+        },
+      };
     },
     staleTime: Infinity, // Cache indefinitely
   });
@@ -255,34 +325,87 @@ export const useUserSettings = () => {
 
 // Mutation Hooks
 
-// Backtesting
+// Backtesting - Transform server response to match client expectations
 export const useBacktest = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
     mutationFn: async (request: BacktestRequest): Promise<BacktestResult> => {
-      // Use 'from' and 'to' keys as expected by backend
-      const formattedRequest = {
-        ...request,
-        from: request.from, // Ensure proper date format
-        to: request.to,
+      // Transform request to match server's expected format
+      const serverRequest = {
+        symbol: request.symbol,
+        from_date: request.from, // Server expects 'from_date' 
+        to_date: request.to,     // Server expects 'to_date'
+        timeframe: request.timeframe,
+        paramsOverride: request.paramsOverride
       };
-      return apiClient.post('/backtest', formattedRequest);
+      
+      const response = await apiClient.post('/backtest', serverRequest);
+      
+      // Transform server response to match client expectations
+      return {
+        stats: {
+          totalPnL: response.data.net_pnl,
+          winRate: response.data.win_rate,
+          maxDD: 0, // Server doesn't provide this yet
+          avgRR: 2.0, // Default value
+          totalTrades: response.data.total_trades,
+          winningTrades: response.data.winning_trades,
+          losingTrades: response.data.losing_trades,
+          profitFactor: response.data.winning_trades / Math.max(response.data.losing_trades, 1),
+          sharpeRatio: 0, // Server doesn't provide this yet
+        },
+        equityCurve: [], // Server doesn't provide this yet - return empty array
+        trades: response.data.trades.map((trade: any) => ({
+          id: `${trade.entry_time}_${trade.side}`,
+          dateIn: trade.entry_time,
+          dateOut: trade.exit_time,
+          entry: trade.entry_price,
+          exit: trade.exit_price,
+          sl: trade.entry_price, // Approximation
+          tp: trade.exit_price,  // Approximation
+          rr: Math.abs(trade.exit_price - trade.entry_price) / Math.abs(trade.entry_price * 0.02),
+          pnl: trade.pnl,
+          scenario: 'Generated',
+          direction: trade.side.toUpperCase() as 'LONG' | 'SHORT'
+        }))
+      };
     },
     onSuccess: () => {
-      // Invalidate related queries if needed
       queryClient.invalidateQueries({ queryKey: ['backtest'] });
     },
   });
 };
 
-// User Settings
+// User Settings Update - Transform client nested structure to server flat structure
 export const useUpdateUserSettings = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
     mutationFn: async (settings: UserSettings): Promise<{ ok: boolean }> => {
-      return apiClient.post('/user/settings', settings);
+      // Transform client's nested structure to server's expected flat structure
+      const serverPayload = {
+        risk_capital: settings.riskSettings?.maxBudget || settings.risk_capital || 0,
+        risk_per_trade: settings.riskSettings?.maxLossPerTrade || settings.risk_per_trade || 1000,
+        default_timeframe: settings.defaultTimeframe || settings.default_timeframe || '5m',
+        advanced_filters: {
+          ...settings.advanced_filters,
+          theme: settings.theme || 'dark',
+          defaultSymbol: settings.defaultSymbol || 'NIFTY',
+          minRiskRewardRatio: settings.riskSettings?.riskRewardRatio || 2.0,
+          signalAlerts: settings.notifications?.signalAlerts !== false,
+          riskAlerts: settings.notifications?.riskAlerts !== false,
+        },
+        indicator_prefs: {
+          ...settings.indicator_prefs,
+          showCPR: settings.displaySettings?.showCPR !== false,
+          showEMA: settings.displaySettings?.showEMA !== false,
+          showVWAP: settings.displaySettings?.showVWAP !== false,
+          showPivots: settings.displaySettings?.showPivots !== false,
+        },
+      };
+      
+      return apiClient.post('/user/settings', serverPayload);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_SETTINGS] });

@@ -176,23 +176,31 @@ export interface LogsResponse {
   total: number;
 }
 
-// User Settings
+// User Settings - Updated to match server flat structure
 export interface UserSettings {
-  theme: 'light' | 'dark';
-  defaultSymbol: string;
-  defaultTimeframe: string;
-  riskSettings: {
+  // Basic settings (flat structure as per server)
+  risk_capital: number;
+  risk_per_trade: number;
+  default_timeframe: string;
+  advanced_filters: Record<string, any>;
+  indicator_prefs: Record<string, any>;
+  
+  // Client-side computed nested structure for UI
+  theme?: 'light' | 'dark';
+  defaultSymbol?: string;
+  defaultTimeframe?: string;
+  riskSettings?: {
     maxBudget: number;
     maxLossPerTrade: number;
     riskRewardRatio: number;
   };
-  displaySettings: {
+  displaySettings?: {
     showCPR: boolean;
     showEMA: boolean;
     showVWAP: boolean;
     showPivots: boolean;
   };
-  notifications: {
+  notifications?: {
     signalAlerts: boolean;
     riskAlerts: boolean;
   };
