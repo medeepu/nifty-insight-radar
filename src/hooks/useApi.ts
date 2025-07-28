@@ -47,9 +47,9 @@ apiClient.interceptors.response.use(
   (response) => {
     // Handle both wrapped and unwrapped responses
     if (response.data && typeof response.data === 'object' && 'data' in response.data) {
-      return response.data.data;
+      return { ...response, data: response.data.data };
     }
-    return response.data;
+    return response;
   },
   (error) => {
     console.error('API Error:', error);
@@ -91,9 +91,9 @@ export const useCurrentPrice = (symbol: string) => {
       const response = await apiClient.get(`/price/current?symbol=${symbol}`);
       // Transform server response to match client expectations
       return {
-        symbol: response.symbol,
-        close: response.price, // Server uses 'price', client expects 'close'
-        time: response.timestamp,
+        symbol: response.data.symbol,
+        close: response.data.price, // Server uses 'price', client expects 'close'
+        time: response.data.timestamp,
         change: 0, // Server doesn't provide this, set default
         changePercent: 0 // Server doesn't provide this, set default
       };
@@ -175,16 +175,16 @@ export const useCurrentSignal = (symbol: string) => {
       const response = await apiClient.get(`/signal/current?symbol=${symbol}`);
       // Transform server response to match client expectations
       return {
-        signal: response.direction === 'long' ? 'BUY' : 
-                response.direction === 'short' ? 'SELL' : 'NEUTRAL',
-        scenario: response.scenario,
-        entry: response.entry_price,
-        sl: response.stop_price,
-        tp: response.target_price,
-        rr: response.risk_reward,
-        timestamp: response.timestamp,
-        proTip: response.reason || 'No additional information available',
-        confidence: response.confidence * 100 // Convert to percentage
+        signal: response.data.direction === 'long' ? 'BUY' : 
+                response.data.direction === 'short' ? 'SELL' : 'NEUTRAL',
+        scenario: response.data.scenario,
+        entry: response.data.entry_price,
+        sl: response.data.stop_price,
+        tp: response.data.target_price,
+        rr: response.data.risk_reward,
+        timestamp: response.data.timestamp,
+        proTip: response.data.reason || 'No additional information available',
+        confidence: response.data.confidence * 100 // Convert to percentage
       };
     },
     enabled: !!symbol,
@@ -200,18 +200,18 @@ export const useGreeks = (optionSymbol: string) => {
       const response = await apiClient.get(`/greeks?optionSymbol=${optionSymbol}`);
       // Transform server response to match client expectations
       return {
-        delta: response.delta,
-        gamma: response.gamma,
-        theta: response.theta,
-        vega: response.vega,
-        rho: response.rho,
-        iv: response.implied_volatility, // Server uses 'implied_volatility'
-        theoreticalPrice: response.option_price, // Server uses 'option_price'
-        intrinsicValue: response.intrinsic_value,
-        timeValue: response.time_value,
-        status: response.underlying_price > response.strike ? 'ITM' : 
-                response.underlying_price < response.strike ? 'OTM' : 'ATM',
-        moneynessPercent: ((response.underlying_price - response.strike) / response.strike) * 100
+        delta: response.data.delta,
+        gamma: response.data.gamma,
+        theta: response.data.theta,
+        vega: response.data.vega,
+        rho: response.data.rho,
+        iv: response.data.implied_volatility, // Server uses 'implied_volatility'
+        theoreticalPrice: response.data.option_price, // Server uses 'option_price'
+        intrinsicValue: response.data.intrinsic_value,
+        timeValue: response.data.time_value,
+        status: response.data.underlying_price > response.data.strike ? 'ITM' : 
+                response.data.underlying_price < response.data.strike ? 'OTM' : 'ATM',
+        moneynessPercent: ((response.data.underlying_price - response.data.strike) / response.data.strike) * 100
       };
     },
     enabled: !!optionSymbol,
