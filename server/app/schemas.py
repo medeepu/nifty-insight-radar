@@ -187,6 +187,12 @@ class SignalData(BaseModel):
     confidence: float
     reason: Optional[str]
 
+    # Legacy alias for the signal direction.  Some older clients may still
+    # refer to ``direction`` rather than ``signal``.  This optional
+    # attribute will be populated with the same value as ``signal`` in
+    # responses to preserve backwards compatibility.
+    direction: Optional[str] = None
+
 
 # ---------------------------------------------------------------------------
 # Greeks & Options
@@ -228,6 +234,28 @@ class GreeksData(BaseModel):
     maxProfit: Optional[float] = None
     # Maximum loss (the option premium paid).
     maxLoss: Optional[float] = None
+
+    # -------------------------------------------------------------------
+    # Client‑friendly alias fields (deprecated)
+    #
+    # The client may still expect short field names such as ``iv``,
+    # ``intrinsicValue``, ``timeValue`` and ``moneynessPercent`` due to
+    # older implementations.  These optional fields simply mirror the
+    # values from the longer canonical names and can be omitted in
+    # responses where clients have been updated.
+    # -------------------------------------------------------------------
+    iv: Optional[float] = None
+    intrinsicValue: Optional[float] = None
+    timeValue: Optional[float] = None
+    moneynessPercent: Optional[float] = None
+    # --------------------------------------------------------------------
+    # Backwards‑compatible aliases expected by older clients.  These
+    # duplicate values already present above but use camelCase naming.
+    # They are optional so that new clients can ignore them.
+    iv: Optional[float] = Field(None, description="Alias for implied_volatility")
+    intrinsicValue: Optional[float] = Field(None, description="Alias for intrinsic_value")
+    timeValue: Optional[float] = Field(None, description="Alias for time_value")
+    moneynessPercent: Optional[float] = Field(None, description="Alias for moneyness_percent")
 
 
 # ---------------------------------------------------------------------------

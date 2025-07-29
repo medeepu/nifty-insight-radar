@@ -120,7 +120,7 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         break_even = option_metrics.strike - option_metrics.option_price
         max_profit = option_metrics.strike - option_metrics.option_price
         max_loss = option_metrics.option_price
-    return GreeksData(
+    response = GreeksData(
         option_symbol=option_metrics.option_symbol,
         expiry=option_metrics.expiry,
         strike=option_metrics.strike,
@@ -148,4 +148,18 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
         breakEven=break_even,
         maxProfit=max_profit,
         maxLoss=max_loss,
+        # Populate backwards‑compatible aliases
+        iv=option_metrics.implied_volatility,
+        intrinsicValue=option_metrics.intrinsic_value,
+        timeValue=option_metrics.time_value,
+        moneynessPercent=option_metrics.moneyness_percent,
     )
+    # Broadcast the Greek result over the WebSocket channel for real‑time updates
+    try:
+        import json as _json  # Local import to avoid global import at module level
+        from ..websocket_manager import manager as _ws_manager
+        await _ws_manager.broadcast("greeks", _json.dumps(response.dict()))
+    except Exception:
+        # Silently ignore any broadcast errors
+        pass
+    return response

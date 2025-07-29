@@ -89,6 +89,8 @@ async def current_signal(
         position_size=position_size,
         confidence=confidence,
         reason=context.get("reason") if isinstance(context, dict) else None,
+        # Populate legacy alias field for backwards compatibility
+        direction=direction,
     )
     # Broadcast over WebSocket
     try:
