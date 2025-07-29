@@ -247,21 +247,40 @@ export const useGreeks = (optionSymbol: string) => {
       const moneynessPercent = ((underlyingPrice - strike) / strike) * 100;
       
       return {
+        // Server fields - keep original names
+        option_symbol: response.data.option_symbol,
+        expiry: response.data.expiry,
+        strike: response.data.strike,
+        option_type: response.data.option_type,
+        underlying_price: response.data.underlying_price,
+        implied_volatility: response.data.implied_volatility,
+        option_price: response.data.option_price,
         delta: response.data.delta,
         gamma: response.data.gamma,
         theta: response.data.theta,
         vega: response.data.vega,
         rho: response.data.rho,
+        intrinsic_value: response.data.intrinsic_value,
+        time_value: response.data.time_value,
+        entry_price: response.data.entry_price,
+        stop_price: response.data.stop_price,
+        target_price: response.data.target_price,
+        risk_reward: response.data.risk_reward,
+        position_size: response.data.position_size,
+        moneyness_percent: response.data.moneyness_percent,
+        status: response.data.status,
+        iv_rank: response.data.iv_rank,
+        market_option_price: response.data.market_option_price,
+        theoreticalPrice: response.data.theoreticalPrice,
+        breakEven: response.data.breakEven,
+        maxProfit: response.data.maxProfit,
+        maxLoss: response.data.maxLoss,
+        
+        // Client-friendly aliases for backward compatibility
         iv: response.data.implied_volatility,
-        theoreticalPrice: response.data.option_price,
         intrinsicValue: response.data.intrinsic_value,
         timeValue: response.data.time_value,
-        status,
-        moneynessPercent,
-        // Add additional fields that client expects
-        breakEven: optionType === 'C' ? strike + response.data.option_price : strike - response.data.option_price,
-        maxProfit: optionType === 'C' ? Infinity : strike - response.data.option_price,
-        maxLoss: response.data.option_price,
+        moneynessPercent: response.data.moneyness_percent,
       };
     },
     enabled: !!optionSymbol,

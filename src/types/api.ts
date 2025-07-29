@@ -99,22 +99,41 @@ export interface SignalData {
   confidence?: number;
 }
 
-// Greeks
+// Greeks - Updated to match server response exactly
 export interface GreeksData {
+  option_symbol: string;
+  expiry: string; // date
+  strike: number;
+  option_type: string;
+  underlying_price: number;
+  implied_volatility: number; // server field name
+  option_price: number;
   delta: number;
   gamma: number;
   theta: number;
   vega: number;
   rho: number;
-  iv: number; // implied volatility
-  theoreticalPrice: number;
-  intrinsicValue: number;
-  timeValue: number;
+  intrinsic_value: number; // server field name
+  time_value: number; // server field name
+  entry_price: number;
+  stop_price: number;
+  target_price: number;
+  risk_reward: number;
+  position_size: number;
+  moneyness_percent: number; // server field name
   status: 'ATM' | 'ITM' | 'OTM';
-  moneynessPercent: number;
-  breakEven: number;
-  maxProfit: number | typeof Infinity;
-  maxLoss: number;
+  iv_rank?: number; // server field name, optional
+  market_option_price?: number;
+  theoreticalPrice?: number; // client-friendly alias
+  breakEven?: number; // client-friendly alias
+  maxProfit?: number | null; // client-friendly alias
+  maxLoss?: number; // client-friendly alias
+  
+  // Client-side computed properties for backward compatibility
+  iv?: number;
+  intrinsicValue?: number;
+  timeValue?: number;
+  moneynessPercent?: number;
 }
 
 // Backtesting

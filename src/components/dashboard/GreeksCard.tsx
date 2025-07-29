@@ -19,8 +19,16 @@ export const GreeksCard: React.FC = () => {
   const [refreshInterval, setRefreshInterval] = useState<number>(5000); // 5 seconds default
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
   
-  // This would need to be constructed from current option selection
-  const optionSymbol = `${selectedSymbol}24DEC21000CE`; // Mock symbol
+  // Construct option symbol from current selection - using ATM strike for now
+  const currentDate = new Date();
+  const nextThursday = new Date(currentDate);
+  nextThursday.setDate(currentDate.getDate() + (4 - currentDate.getDay() + 7) % 7);
+  const expiry = nextThursday.toISOString().slice(2, 10).replace(/-/g, '');
+  
+  // Mock ATM strike - in real implementation, this would come from current price
+  const atmStrike = 24000; // This should be calculated from current price
+  const optionSymbol = `${selectedSymbol}${expiry}C${atmStrike}`;
+  
   const { data: greeks, isLoading, refetch } = useGreeks(optionSymbol);
 
   // Auto-refresh with configurable interval - prevent excessive blinking
@@ -64,14 +72,15 @@ export const GreeksCard: React.FC = () => {
   };
 
   const getIVRankColor = () => {
-    if (!greeks) return 'text-muted-foreground';
-    // Calculate IV Rank based on current IV vs historical range
-    const currentIV = greeks.iv * 100;
-    const ivRank = Math.min(Math.max((currentIV - 10) / (35 - 10) * 100, 0), 100); // Mock calculation
+    if (!greeks?.iv_rank) return 'text-muted-foreground';
     
-    if (ivRank > 80) return 'text-bear';
-    if (ivRank > 50) return 'text-neutral';
+    if (greeks.iv_rank > 80) return 'text-bear';
+    if (greeks.iv_rank > 50) return 'text-neutral';
     return 'text-bull';
+  };
+
+  const getIVRankValue = () => {
+    return greeks?.iv_rank ? `${greeks.iv_rank.toFixed(0)}%` : '--';
   };
 
   if (isLoading) {
@@ -195,7 +204,7 @@ export const GreeksCard: React.FC = () => {
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">IV</span>
           <span className="font-mono font-medium">
-            {greeks?.iv ? `${(greeks.iv * 100).toFixed(1)}%` : '--'}
+            {greeks?.implied_volatility ? `${(greeks.implied_volatility * 100).toFixed(1)}%` : '--'}
           </span>
         </div>
 
@@ -203,7 +212,7 @@ export const GreeksCard: React.FC = () => {
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">IV Rank</span>
           <span className={`font-mono font-medium ${getIVRankColor()}`}>
-            65% {/* Mock value */}
+            {getIVRankValue()}
           </span>
         </div>
 
@@ -219,7 +228,7 @@ export const GreeksCard: React.FC = () => {
         <div className="flex justify-between items-center">
           <span className="text-xs text-muted-foreground">Moneyness</span>
           <span className="font-mono text-sm">
-            {greeks?.moneynessPercent ? `${greeks.moneynessPercent.toFixed(1)}%` : '--'}
+            {greeks?.moneyness_percent ? `${greeks.moneyness_percent.toFixed(1)}%` : '--'}
           </span>
         </div>
       </CardContent>
