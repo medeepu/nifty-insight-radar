@@ -36,6 +36,7 @@ def _to_schema(settings: UserSettings) -> UserSettingsModel:
         indicatorPreferences=settings.indicator_preferences or {},
         chartConfiguration=settings.chart_configuration or {},
         brokerSettings=settings.broker_settings or {},
+        greeksSettings=settings.greeks_settings or {},
     )
 
 
@@ -124,6 +125,9 @@ def update_settings(
     if payload.brokerSettings is not None:
         base = settings.broker_settings or {}
         settings.broker_settings = _deep_update(base, payload.brokerSettings)
+    if payload.greeksSettings is not None:
+        base = settings.greeks_settings or {}
+        settings.greeks_settings = _deep_update(base, payload.greeksSettings)
     db.commit()
     db.refresh(settings)
     return _to_schema(settings)
