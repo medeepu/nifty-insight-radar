@@ -195,24 +195,31 @@ export const useIndicators = (symbol: string) => {
   });
 };
 
-// Signal Data
-export const useCurrentSignal = (symbol: string) => {
+// Signal Data  
+export const useCurrentSignal = (symbol: string, timeframe: string = '5m') => {
   return useQuery({
-    queryKey: [QUERY_KEYS.SIGNAL, symbol],
+    queryKey: [QUERY_KEYS.SIGNAL, symbol, timeframe],
     queryFn: async (): Promise<SignalData> => {
-      const response = await apiClient.get(`/signal/current?symbol=${symbol}`);
-      // Transform server response to match client expectations
+      const response = await apiClient.get(`/signal/current?symbol=${symbol}&timeframe=${timeframe}`);
+      
       return {
-        signal: response.data.direction === 'long' ? 'BUY' : 
-                response.data.direction === 'short' ? 'SELL' : 'NEUTRAL',
+        signal: response.data.signal, // Server now returns 'BUY'/'SELL'/'NEUTRAL' directly
         scenario: response.data.scenario,
+        entry_price: response.data.entry_price,
+        stop_price: response.data.stop_price,
+        target_price: response.data.target_price,
+        risk_reward: response.data.risk_reward,
+        timestamp: response.data.timestamp,
+        reason: response.data.reason,
+        confidence: response.data.confidence,
+        position_size: response.data.position_size,
+        
+        // Client-friendly aliases for backward compatibility
         entry: response.data.entry_price,
         sl: response.data.stop_price,
         tp: response.data.target_price,
         rr: response.data.risk_reward,
-        timestamp: response.data.timestamp,
         proTip: response.data.reason || 'No additional information available',
-        confidence: response.data.confidence * 100 // Convert to percentage
       };
     },
     enabled: !!symbol,
@@ -220,34 +227,36 @@ export const useCurrentSignal = (symbol: string) => {
   });
 };
 
-// Greeks Data
-export const useGreeks = (optionSymbol: string) => {
+// Greeks Data - Enhanced with optional parameters
+export const useGreeks = (
+  optionSymbol: string, 
+  options?: {
+    riskFreeRate?: number;
+    dividendYield?: number;
+    ivGuess?: number;
+    daysToExpiry?: number;
+  }
+) => {
   return useQuery({
-    queryKey: [QUERY_KEYS.GREEKS, optionSymbol],
+    queryKey: [QUERY_KEYS.GREEKS, optionSymbol, options],
     queryFn: async (): Promise<GreeksData> => {
-      const response = await apiClient.get(`/greeks?optionSymbol=${optionSymbol}`);
+      const params = new URLSearchParams({
+        optionSymbol,
+        ...(options?.riskFreeRate !== undefined && { riskFreeRate: options.riskFreeRate.toString() }),
+        ...(options?.dividendYield !== undefined && { dividendYield: options.dividendYield.toString() }),
+        ...(options?.ivGuess !== undefined && { ivGuess: options.ivGuess.toString() }),
+        ...(options?.daysToExpiry !== undefined && { daysToExpiry: options.daysToExpiry.toString() }),
+      });
+      
+      const response = await apiClient.get(`/greeks?${params}`);
       
       // Handle case where server returns error or no data
       if (!response.data) {
         throw new Error('No Greeks data available');
       }
       
-      // Calculate moneyness status and percentage
-      const underlyingPrice = response.data.underlying_price;
-      const strike = response.data.strike;
-      const optionType = response.data.option_type;
-      
-      let status: 'ATM' | 'ITM' | 'OTM';
-      if (optionType === 'C') {
-        status = underlyingPrice > strike ? 'ITM' : underlyingPrice < strike ? 'OTM' : 'ATM';
-      } else {
-        status = underlyingPrice < strike ? 'ITM' : underlyingPrice > strike ? 'OTM' : 'ATM';
-      }
-      
-      const moneynessPercent = ((underlyingPrice - strike) / strike) * 100;
-      
       return {
-        // Server fields - keep original names
+        // Server fields - keep original names  
         option_symbol: response.data.option_symbol,
         expiry: response.data.expiry,
         strike: response.data.strike,
@@ -324,43 +333,13 @@ export const useRecentLogs = (limit: number = 100) => {
   });
 };
 
-// User Settings - Transform server flat structure to client nested structure
+// User Settings - Updated to use new /settings endpoint
 export const useUserSettings = () => {
   return useQuery({
     queryKey: [QUERY_KEYS.USER_SETTINGS],
     queryFn: async (): Promise<UserSettings> => {
-      const response = await apiClient.get('/user/settings');
-      const serverData = response.data;
-      
-      // Transform server's flat structure to client's expected nested structure
-      return {
-        // Server fields (keep original for API calls)
-        risk_capital: serverData.risk_capital || 0,
-        risk_per_trade: serverData.risk_per_trade || 1000,
-        default_timeframe: serverData.default_timeframe || '5m',
-        advanced_filters: serverData.advanced_filters || {},
-        indicator_prefs: serverData.indicator_prefs || {},
-        
-        // Client-side nested structure for UI
-        theme: serverData.advanced_filters?.theme || 'dark',
-        defaultSymbol: serverData.advanced_filters?.defaultSymbol || 'NIFTY',
-        defaultTimeframe: serverData.default_timeframe || '5m',
-        riskSettings: {
-          maxBudget: serverData.risk_capital || 100000,
-          maxLossPerTrade: serverData.risk_per_trade || 1000,
-          riskRewardRatio: serverData.advanced_filters?.minRiskRewardRatio || 2.0,
-        },
-        displaySettings: {
-          showCPR: serverData.indicator_prefs?.showCPR !== false,
-          showEMA: serverData.indicator_prefs?.showEMA !== false,
-          showVWAP: serverData.indicator_prefs?.showVWAP !== false,
-          showPivots: serverData.indicator_prefs?.showPivots !== false,
-        },
-        notifications: {
-          signalAlerts: serverData.advanced_filters?.signalAlerts !== false,
-          riskAlerts: serverData.advanced_filters?.riskAlerts !== false,
-        },
-      };
+      const response = await apiClient.get('/settings');
+      return response.data;
     },
     staleTime: Infinity, // Cache indefinitely
   });
@@ -420,35 +399,15 @@ export const useBacktest = () => {
   });
 };
 
-// User Settings Update - Transform client nested structure to server flat structure
+// User Settings Update - Updated to use new /settings endpoint with deep merge
 export const useUpdateUserSettings = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: async (settings: UserSettings): Promise<{ ok: boolean }> => {
-      // Transform client's nested structure to server's expected flat structure
-      const serverPayload = {
-        risk_capital: settings.riskSettings?.maxBudget || settings.risk_capital || 0,
-        risk_per_trade: settings.riskSettings?.maxLossPerTrade || settings.risk_per_trade || 1000,
-        default_timeframe: settings.defaultTimeframe || settings.default_timeframe || '5m',
-        advanced_filters: {
-          ...settings.advanced_filters,
-          theme: settings.theme || 'dark',
-          defaultSymbol: settings.defaultSymbol || 'NIFTY',
-          minRiskRewardRatio: settings.riskSettings?.riskRewardRatio || 2.0,
-          signalAlerts: settings.notifications?.signalAlerts !== false,
-          riskAlerts: settings.notifications?.riskAlerts !== false,
-        },
-        indicator_prefs: {
-          ...settings.indicator_prefs,
-          showCPR: settings.displaySettings?.showCPR !== false,
-          showEMA: settings.displaySettings?.showEMA !== false,
-          showVWAP: settings.displaySettings?.showVWAP !== false,
-          showPivots: settings.displaySettings?.showPivots !== false,
-        },
-      };
-      
-      return apiClient.post('/user/settings', serverPayload);
+    mutationFn: async (settings: Partial<UserSettings>): Promise<UserSettings> => {
+      // Send only changed fields to leverage server-side deep merge
+      const response = await apiClient.put('/settings', settings);
+      return response.data;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: [QUERY_KEYS.USER_SETTINGS] });

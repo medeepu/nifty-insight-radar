@@ -90,13 +90,21 @@ export type SignalType = 'BUY' | 'SELL' | 'NEUTRAL';
 export interface SignalData {
   signal: SignalType;
   scenario: string;
-  entry: number;
-  sl: number; // stop loss
-  tp: number; // take profit
-  rr: number; // risk reward ratio
+  entry_price: number; // Updated to match server field
+  stop_price: number; // Updated to match server field  
+  target_price: number; // Updated to match server field
+  risk_reward: number; // Updated to match server field
   timestamp: string;
-  proTip: string;
-  confidence?: number;
+  reason?: string; // Updated to match server field
+  confidence: number; // Now required from server
+  position_size: number; // New from server
+  
+  // Client-friendly aliases for backward compatibility
+  entry?: number;
+  sl?: number;
+  tp?: number; 
+  rr?: number;
+  proTip?: string;
 }
 
 // Greeks - Updated to match server response exactly
@@ -198,34 +206,30 @@ export interface LogsResponse {
   total: number;
 }
 
-// User Settings - Updated to match server flat structure
+// User Settings - Updated to match new server nested structure
 export interface UserSettings {
-  // Basic settings (flat structure as per server)
-  risk_capital: number;
-  risk_per_trade: number;
-  default_timeframe: string;
-  advanced_filters: Record<string, any>;
-  indicator_prefs: Record<string, any>;
-  
-  // Client-side computed nested structure for UI
   theme?: 'light' | 'dark';
   defaultSymbol?: string;
   defaultTimeframe?: string;
-  riskSettings?: {
-    maxBudget: number;
-    maxLossPerTrade: number;
-    riskRewardRatio: number;
-  };
-  displaySettings?: {
-    showCPR: boolean;
-    showEMA: boolean;
-    showVWAP: boolean;
-    showPivots: boolean;
-  };
-  notifications?: {
-    signalAlerts: boolean;
-    riskAlerts: boolean;
-  };
+  riskSettings?: Record<string, any>;
+  displaySettings?: Record<string, any>;
+  notifications?: Record<string, any>;
+  indicatorPreferences?: Record<string, any>;
+  chartConfiguration?: Record<string, any>;
+  brokerSettings?: Record<string, any>;
+}
+
+// Update Settings Request (partial updates)
+export interface UpdateUserSettings {
+  theme?: string;
+  defaultSymbol?: string;
+  defaultTimeframe?: string;
+  riskSettings?: Record<string, any>;
+  displaySettings?: Record<string, any>;
+  notifications?: Record<string, any>;
+  indicatorPreferences?: Record<string, any>;
+  chartConfiguration?: Record<string, any>;
+  brokerSettings?: Record<string, any>;
 }
 
 // Broker Integration

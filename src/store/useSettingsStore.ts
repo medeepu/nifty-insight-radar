@@ -365,32 +365,35 @@ export const useSettingsStore = create<SettingsStore>()(
         set({ unsavedChanges: hasChanges });
       },
       
-      // Server Persistence
+      // Server Persistence - Updated to use new settings API
       saveToServer: async () => {
         try {
-          const response = await fetch('/api/user/settings', {
-            method: 'POST',
+          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+          const response = await fetch(`${API_BASE_URL}/settings`, {
+            method: 'PUT',
             headers: {
               'Content-Type': 'application/json',
               'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
             },
             body: JSON.stringify({
-              // Transform client settings to server format
-              risk_capital: get().settings.budgetRisk.maxBudget,
-              risk_per_trade: get().settings.budgetRisk.maxLossPerTrade,
-              default_timeframe: get().settings.chart.timeframe,
-              advanced_filters: {
+              // Send settings in new nested format (partial updates supported)
+              theme: 'dark', // Default theme
+              defaultSymbol: 'NIFTY',
+              defaultTimeframe: get().settings.chart.timeframe,
+              riskSettings: {
+                maxBudget: get().settings.budgetRisk.maxBudget,
+                maxLossPerTrade: get().settings.budgetRisk.maxLossPerTrade,
                 riskRewardRatio: get().settings.core.riskRewardRatio,
-                strikeSelectionMode: get().settings.core.strikeSelectionMode,
-                tradeDirection: get().settings.core.tradeDirection,
               },
-              indicator_prefs: {
-                cpr: get().settings.indicators.cpr,
-                ema: get().settings.indicators.ema,
-                vwap: get().settings.indicators.vwap,
-                rsi: get().settings.indicators.rsi,
-                stochastic: get().settings.indicators.stochastic,
+              displaySettings: {
+                showCPR: get().settings.indicators.cpr.enabled,
+                showEMA: Object.values(get().settings.indicators.ema).some(ema => ema.enabled),
+                showVWAP: get().settings.indicators.vwap.enabled,
+                showPivots: Object.values(get().settings.indicators.pivots).some(pivot => pivot.enabled),
               },
+              indicatorPreferences: get().settings.indicators,
+              chartConfiguration: get().settings.chart,
+              brokerSettings: get().settings.broker,
             }),
           });
           
@@ -407,7 +410,8 @@ export const useSettingsStore = create<SettingsStore>()(
       
       loadFromServer: async () => {
         try {
-          const response = await fetch('/api/user/settings', {
+          const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api';
+          const response = await fetch(`${API_BASE_URL}/settings`, {
             headers: {
               'Authorization': `Bearer ${localStorage.getItem('authToken') || ''}`,
             },
@@ -419,30 +423,33 @@ export const useSettingsStore = create<SettingsStore>()(
           
           const serverSettings = await response.json();
           
-          // Transform server settings to client format
+          // Merge server settings with current settings
           set((state) => ({
             settings: {
               ...state.settings,
+              core: {
+                ...state.settings.core,
+                riskRewardRatio: serverSettings.riskSettings?.riskRewardRatio || state.settings.core.riskRewardRatio,
+              },
               budgetRisk: {
                 ...state.settings.budgetRisk,
-                maxBudget: serverSettings.risk_capital || state.settings.budgetRisk.maxBudget,
-                maxLossPerTrade: serverSettings.risk_per_trade || state.settings.budgetRisk.maxLossPerTrade,
+                maxBudget: serverSettings.riskSettings?.maxBudget || state.settings.budgetRisk.maxBudget,
+                maxLossPerTrade: serverSettings.riskSettings?.maxLossPerTrade || state.settings.budgetRisk.maxLossPerTrade,
               },
               chart: {
                 ...state.settings.chart,
-                timeframe: serverSettings.default_timeframe || state.settings.chart.timeframe,
-              },
-              core: {
-                ...state.settings.core,
-                riskRewardRatio: serverSettings.advanced_filters?.riskRewardRatio || state.settings.core.riskRewardRatio,
-                strikeSelectionMode: serverSettings.advanced_filters?.strikeSelectionMode || state.settings.core.strikeSelectionMode,
-                tradeDirection: serverSettings.advanced_filters?.tradeDirection || state.settings.core.tradeDirection,
+                timeframe: serverSettings.defaultTimeframe || state.settings.chart.timeframe,
               },
               indicators: {
                 ...state.settings.indicators,
-                ...serverSettings.indicator_prefs,
+                ...serverSettings.indicatorPreferences,
+              },
+              broker: {
+                ...state.settings.broker,
+                ...serverSettings.brokerSettings,
               },
             },
+            unsavedChanges: false,
           }));
         } catch (error) {
           console.error('Failed to load settings:', error);

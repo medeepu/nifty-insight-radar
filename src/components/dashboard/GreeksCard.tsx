@@ -9,15 +9,28 @@ import { Progress } from '../ui/progress';
 import { Badge } from '../ui/badge';
 import { Button } from '../ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../ui/select';
+import { Input } from '../ui/input';
+import { Label } from '../ui/label';
+import { Popover, PopoverContent, PopoverTrigger } from '../ui/popover';
 import { Activity, TrendingUp, TrendingDown, Settings } from 'lucide-react';
 import { useGreeks } from '../../hooks/useApi';
 import { useTradingStore } from '../../store/useTradingStore';
+import { useSettingsStore } from '../../store/useSettingsStore';
 import { LoadingCard } from '../ui/loading-spinner';
 
 export const GreeksCard: React.FC = () => {
   const { selectedSymbol } = useTradingStore();
+  const { settings } = useSettingsStore();
   const [refreshInterval, setRefreshInterval] = useState<number>(5000); // 5 seconds default
   const [lastRefresh, setLastRefresh] = useState<Date>(new Date());
+  
+  // Greeks calculation parameters - with defaults from settings
+  const [greeksParams, setGreeksParams] = useState({
+    riskFreeRate: settings.greeks?.riskFreeRate || 6.01,
+    dividendYield: settings.greeks?.dividendYield || 0.0,
+    ivGuess: settings.greeks?.ivCalculation?.initialGuess || 0.25,
+    daysToExpiry: undefined as number | undefined,
+  });
   
   // Construct option symbol from current selection - using ATM strike for now
   const currentDate = new Date();
@@ -29,7 +42,7 @@ export const GreeksCard: React.FC = () => {
   const atmStrike = 24000; // This should be calculated from current price
   const optionSymbol = `${selectedSymbol}${expiry}C${atmStrike}`;
   
-  const { data: greeks, isLoading, refetch } = useGreeks(optionSymbol);
+  const { data: greeks, isLoading, refetch } = useGreeks(optionSymbol, greeksParams);
 
   // Auto-refresh with configurable interval - prevent excessive blinking
   useEffect(() => {
@@ -121,17 +134,115 @@ export const GreeksCard: React.FC = () => {
                 <SelectItem value="300000">5m</SelectItem>
               </SelectContent>
             </Select>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="h-7 w-7 p-0"
-              onClick={() => {
-                refetch();
-                setLastRefresh(new Date());
-              }}
-            >
-              <Settings className="h-3 w-3" />
-            </Button>
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="h-7 w-7 p-0"
+                >
+                  <Settings className="h-3 w-3" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-80" align="end">
+                <div className="space-y-4">
+                  <h4 className="font-medium text-sm">Greeks Parameters</h4>
+                  
+                  <div className="space-y-3">
+                    <div className="space-y-1">
+                      <Label htmlFor="riskFreeRate" className="text-xs">Risk-Free Rate (%)</Label>
+                      <Input
+                        id="riskFreeRate"
+                        type="number"
+                        step="0.01"
+                        value={greeksParams.riskFreeRate}
+                        onChange={(e) => setGreeksParams(prev => ({ 
+                          ...prev, 
+                          riskFreeRate: parseFloat(e.target.value) || 0 
+                        }))}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <Label htmlFor="dividendYield" className="text-xs">Dividend Yield (%)</Label>
+                      <Input
+                        id="dividendYield"
+                        type="number"
+                        step="0.01"
+                        value={greeksParams.dividendYield}
+                        onChange={(e) => setGreeksParams(prev => ({ 
+                          ...prev, 
+                          dividendYield: parseFloat(e.target.value) || 0 
+                        }))}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <Label htmlFor="ivGuess" className="text-xs">IV Initial Guess</Label>
+                      <Input
+                        id="ivGuess"
+                        type="number"
+                        step="0.01"
+                        min="0"
+                        max="2"
+                        value={greeksParams.ivGuess}
+                        onChange={(e) => setGreeksParams(prev => ({ 
+                          ...prev, 
+                          ivGuess: parseFloat(e.target.value) || 0.25 
+                        }))}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                    
+                    <div className="space-y-1">
+                      <Label htmlFor="daysToExpiry" className="text-xs">Days to Expiry (optional)</Label>
+                      <Input
+                        id="daysToExpiry"
+                        type="number"
+                        min="1"
+                        placeholder="Auto-calculated"
+                        value={greeksParams.daysToExpiry || ''}
+                        onChange={(e) => setGreeksParams(prev => ({ 
+                          ...prev, 
+                          daysToExpiry: e.target.value ? parseInt(e.target.value) : undefined 
+                        }))}
+                        className="h-8 text-xs"
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="flex gap-2">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      className="flex-1 h-8 text-xs"
+                      onClick={() => {
+                        setGreeksParams({
+                          riskFreeRate: 6.01,
+                          dividendYield: 0.0,
+                          ivGuess: 0.25,
+                          daysToExpiry: undefined,
+                        });
+                      }}
+                    >
+                      Reset
+                    </Button>
+                    <Button 
+                      size="sm"
+                      className="flex-1 h-8 text-xs"
+                      onClick={() => {
+                        refetch();
+                        setLastRefresh(new Date());
+                      }}
+                    >
+                      Apply
+                    </Button>
+                  </div>
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
         </CardTitle>
         <div className="text-xs text-muted-foreground">

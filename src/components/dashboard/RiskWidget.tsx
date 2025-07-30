@@ -16,17 +16,24 @@ export const RiskWidget: React.FC = () => {
   const { settings } = useSettingsStore();
 
   const calculatePositionSize = () => {
-    const { maxBudget, maxLossPerTrade } = settings.budgetRisk;
+    // Use server-calculated position size if available
+    if (currentSignal?.position_size) {
+      return currentSignal.position_size;
+    }
     
+    // Fallback calculation
+    const { maxBudget, maxLossPerTrade } = settings.budgetRisk;
     if (!currentSignal || !currentPrice) return 0;
     
     const riskAmount = (maxBudget * maxLossPerTrade) / 100;
-    const stopLossDistance = Math.abs(currentSignal.entry - currentSignal.sl);
+    const entry = currentSignal.entry || currentSignal.entry_price;
+    const sl = currentSignal.sl || currentSignal.stop_price;
+    const stopLossDistance = Math.abs(entry - sl);
     
     if (stopLossDistance === 0) return 0;
     
     const quantity = Math.floor(riskAmount / stopLossDistance);
-    return Math.min(quantity, Math.floor(maxBudget / currentSignal.entry));
+    return Math.min(quantity, Math.floor(maxBudget / entry));
   };
 
   const getRiskRewardMetrics = () => {
