@@ -39,6 +39,21 @@ def _to_schema(settings: UserSettings) -> UserSettingsModel:
     )
 
 
+def _deep_update(original: dict, updates: dict) -> dict:
+    """Recursively merge update values into the original dictionary.
+
+    Existing nested dictionaries are updated in place so that unspecified
+    keys are preserved rather than overwritten.  Values that are not
+    dictionaries replace the existing value entirely.
+    """
+    for key, value in updates.items():
+        if isinstance(value, dict) and isinstance(original.get(key), dict):
+            original[key] = _deep_update(original.get(key, {}), value)
+        else:
+            original[key] = value
+    return original
+
+
 @router.get(
     "/settings",
     response_model=UserSettingsModel,
@@ -73,9 +88,9 @@ def update_settings(
     """Updates settings for the first user with values provided in ``payload``.
 
     Only fields that are provided in ``payload`` will be updated.  Nested
-    dictionaries completely replace their existing values to simplify the
-    implementation.  A more sophisticated approach might deep‑merge
-    partial updates instead.
+    dictionaries are deep merged with the existing values to preserve
+    unspecified keys.  If a nested dictionary does not exist it is
+    created.
     """
     settings = db.query(UserSettings).first()
     if settings is None:
@@ -90,19 +105,25 @@ def update_settings(
         settings.default_symbol = payload.defaultSymbol
     if payload.defaultTimeframe is not None:
         settings.default_timeframe_nested = payload.defaultTimeframe
-    # Update nested JSON fields
+    # Update nested JSON fields via deep merge
     if payload.riskSettings is not None:
-        settings.risk_settings = payload.riskSettings
+        base = settings.risk_settings or {}
+        settings.risk_settings = _deep_update(base, payload.riskSettings)
     if payload.displaySettings is not None:
-        settings.display_settings = payload.displaySettings
+        base = settings.display_settings or {}
+        settings.display_settings = _deep_update(base, payload.displaySettings)
     if payload.notifications is not None:
-        settings.notifications = payload.notifications
+        base = settings.notifications or {}
+        settings.notifications = _deep_update(base, payload.notifications)
     if payload.indicatorPreferences is not None:
-        settings.indicator_preferences = payload.indicatorPreferences
+        base = settings.indicator_preferences or {}
+        settings.indicator_preferences = _deep_update(base, payload.indicatorPreferences)
     if payload.chartConfiguration is not None:
-        settings.chart_configuration = payload.chartConfiguration
+        base = settings.chart_configuration or {}
+        settings.chart_configuration = _deep_update(base, payload.chartConfiguration)
     if payload.brokerSettings is not None:
-        settings.broker_settings = payload.brokerSettings
+        base = settings.broker_settings or {}
+        settings.broker_settings = _deep_update(base, payload.brokerSettings)
     db.commit()
     db.refresh(settings)
     return _to_schema(settings)

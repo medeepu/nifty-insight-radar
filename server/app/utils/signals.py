@@ -23,7 +23,7 @@ from typing import Dict, Any, Tuple
 from sqlalchemy.orm import Session
 
 from ..utils.indicators import compute_indicator_series
-from ..utils.greeks import compute_option_metrics
+from ..utils.greeks import greeks
 from ..utils.data_fetcher import get_current_price
 from ..schemas import IndicatorSeriesData
 
@@ -81,7 +81,7 @@ def _compute_composite_score(indicators: IndicatorSeriesData) -> Tuple[float, Di
     return score, details
 
 
-def generate_signal(
+async def generate_signal(
     symbol: str,
     timeframe: str,
     db: Session,
@@ -92,7 +92,7 @@ def generate_signal(
 
     The signal is derived from a composite score that considers RSI,
     MACD histogram and moving average crossovers.  Option Greeks are
-    computed for the at‑the‑money contract to adjust the confidence
+    computed for an at‑the‑money call option to adjust the confidence
     score; if delta suggests high sensitivity to price movements then
     confidence is increased.  A simplistic risk adjusted position size
     is computed based on the magnitude of the composite score.
@@ -100,7 +100,7 @@ def generate_signal(
     Args:
         symbol: Ticker symbol
         timeframe: Candle timeframe used for indicator computation
-        db: SQLAlchemy session (currently unused in this implementation)
+        db: SQLAlchemy session (unused in this implementation but kept for interface consistency)
         iv_guess: Initial guess for implied volatility when computing Greeks
 
     Returns:
@@ -111,9 +111,7 @@ def generate_signal(
     indicators = compute_indicator_series(symbol, timeframe)
     # Derive a composite score from various indicators
     score, indicator_details = _compute_composite_score(indicators)
-    # Default to neutral if the score is zero (lack of signal)
-    direction: str
-    base_confidence: float
+    # Determine base direction and confidence
     if score > 0.1:
         direction = "BUY"
         base_confidence = min(score, 1.0)
@@ -123,37 +121,36 @@ def generate_signal(
     else:
         direction = "NEUTRAL"
         base_confidence = abs(score)
-    # Compute Greeks for at‑the‑money option (use current price as strike)
+    # Attempt to compute delta of an at‑the‑money call option
+    delta_value = None
     try:
-        current_price = get_current_price(symbol)
-        # Await the coroutine if necessary
-        current_price_val = current_price if not hasattr(current_price, "__await__") else None
-        if current_price_val is None:
-            # Running in async context would require ``await``, but in synchronous context we ignore Greeks
-            greeks = {}
-        else:
-            greeks = compute_option_metrics(
-                price=current_price_val,
-                strike=current_price_val,
-                days_to_expiry=7,  # assume weekly option
-                iv=iv_guess,
-                rate=0.05,
+        current_price = await get_current_price(symbol)
+        if current_price is not None:
+            # Assume weekly option with 7 days to expiry and a fixed risk free rate of 5%
+            T = 7 / 365.0
+            delta_val, _, _, _, _, _ = greeks(
+                current_price,
+                current_price,
+                T,
+                0.05,
+                0.0,
+                iv_guess,
+                "C",
             )
+            delta_value = delta_val
     except Exception:
-        greeks = {}
+        delta_value = None
     # Adjust confidence based on delta magnitude
-    delta = greeks.get("delta") if isinstance(greeks, dict) else None
-    if delta is not None:
-        base_confidence *= min(max(abs(delta), 0.5), 1.5)
+    if delta_value is not None:
+        base_confidence *= min(max(abs(delta_value), 0.5), 1.5)
     # Cap the confidence between 0 and 1
     confidence = max(min(base_confidence, 1.0), 0.0)
-    # Determine a naive position size as a percentage of portfolio
-    # Position sizing could incorporate volatility and account value in production
+    # Derive a naive position size based on confidence
     position_size = round(confidence * 10)  # up to 10 units
     context: Dict[str, Any] = {
         "composite_score": score,
         "indicators": indicator_details,
-        "greeks": greeks,
+        "delta": delta_value,
         "position_size": position_size,
     }
     return direction, confidence, context

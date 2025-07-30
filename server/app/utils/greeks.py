@@ -219,6 +219,7 @@ def compute_option_metrics(
     stop_underlying: float,
     target_underlying: float,
     risk_per_trade: float,
+    days_to_expiry_override: Optional[int] = None,
 ) -> OptionGreeks:
     """Computes implied volatility, Greeks and option price targets for a given option symbol.
 
@@ -233,6 +234,7 @@ def compute_option_metrics(
         stop_underlying: stop loss level on underlying
         target_underlying: target level on underlying
         risk_per_trade: capital risk per trade (monetary)
+        days_to_expiry_override: override days to expiry when provided
 
     Returns:
         An OptionGreeks instance populated with pricing and Greeks, including moneyness.
@@ -240,6 +242,9 @@ def compute_option_metrics(
     underlying, expiry_date, strike, opt_type = parse_option_symbol(option_symbol)
     today = datetime.date.today()
     days_to_expiry = max((expiry_date - today).days, 0)
+    # Override days to expiry if provided (e.g. from query param)
+    if days_to_expiry_override is not None:
+        days_to_expiry = max(days_to_expiry_override, 0)
     T = days_to_expiry / 365.0
 
     # Compute implied volatility by matching current market option price.

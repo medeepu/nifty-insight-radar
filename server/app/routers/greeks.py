@@ -4,7 +4,9 @@ Endpoint for option Greeks and pricing (extended).
 This router wraps the enhanced option metrics computation and exposes
 additional fields such as moneyness percentage and option status.  It
 also utilises the user's settings to derive the risk free rate and other
-parameters where available.
+parameters where available.  Additional query parameters allow callers
+to override the risk free rate, dividend yield, implied volatility guess
+and days to expiry used in the calculation.
 """
 
 from __future__ import annotations
@@ -24,9 +26,39 @@ from ..core.config import get_settings
 router = APIRouter()
 
 
-@router.get("/greeks", response_model=GreeksData, summary="Compute option Greeks and pricing")
-async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) -> GreeksData:
-    """Returns option price and Greeks for the specified option symbol."""
+@router.get(
+    "/greeks",
+    response_model=GreeksData,
+    summary="Compute option Greeks and pricing",
+)
+async def greeks(
+    optionSymbol: str = Query(..., description="Full option ticker (e.g. NIFTY250417C24000)"),
+    riskFreeRate: float | None = Query(
+        None,
+        description="Override the risk free rate (percentage) used in the pricing model",
+    ),
+    dividendYield: float | None = Query(
+        None,
+        description="Override the dividend yield (percentage) used in the pricing model",
+    ),
+    ivGuess: float | None = Query(
+        None,
+        description="Initial implied volatility guess (decimal) when no market price is available",
+    ),
+    daysToExpiry: int | None = Query(
+        None,
+        description="Override the number of days to expiry used in the pricing model",
+    ),
+    db: Session = Depends(get_db),
+) -> GreeksData:
+    """Returns option price and Greeks for the specified option symbol.
+
+    The endpoint computes theoretical option pricing and Greeks using the
+    Black–Scholes model.  Callers may specify overrides for the risk free
+    rate, dividend yield, initial IV guess and days to expiry.  If no
+    overrides are provided, the server falls back to user settings or
+    sensible defaults.
+    """
     try:
         underlying_symbol, expiry, strike, option_type = parse_option_symbol(optionSymbol)
     except Exception:
@@ -66,23 +98,24 @@ async def greeks(optionSymbol: str = Query(...), db: Session = Depends(get_db)) 
                 risk_per_trade = float(settings_obj.risk_per_trade or 1000.0)
         risk = abs(entry - stop)
         position_size = int(risk_per_trade / risk) if risk > 0 else 0
-    # Rate and dividend yield
+    # Rate and dividend yield: use overrides or fall back to settings/default
     settings = get_settings()
-    # Use environment or settings for risk free rate if provided
-    r = getattr(settings, "risk_free_rate", 6.01)
-    q = 0.0
-    iv_guess = 0.25
+    r = riskFreeRate if riskFreeRate is not None else getattr(settings, "risk_free_rate", 6.01)
+    q = dividendYield if dividendYield is not None else 0.0
+    iv_guess_final = ivGuess if ivGuess is not None else 0.25
+    # Compute option metrics including moneyness and recommended stops
     option_metrics = compute_option_metrics(
         optionSymbol,
         underlying_price,
         r,
         q,
-        iv_guess,
+        iv_guess_final,
         risk_reward,
         position_size,
         stop,
         target,
         risk_per_trade=risk_per_trade,
+        days_to_expiry_override=daysToExpiry,
     )
     # Compute IV rank from historical implied volatilities
     try:

@@ -72,7 +72,7 @@ async def run_backtest(
     for candle in candles:
         price = candle.close
         # Generate signal based on historical context
-        direction, confidence, context = generate_signal(symbol, timeframe, db)
+        direction, confidence, context = await generate_signal(symbol, timeframe, db)
         # If we receive a BUY signal and have no position, open one
         if direction == "BUY" and position is None:
             qty = context.get("position_size", 1)

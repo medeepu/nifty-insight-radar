@@ -45,8 +45,8 @@ async def current_signal(
     stored in the ``Signal`` table and broadcast on the WebSocket
     channel.
     """
-    # Compute the signal
-    direction, confidence, context = generate_signal(symbol, timeframe, db)
+    # Compute the signal (await the async generate_signal)
+    direction, confidence, context = await generate_signal(symbol, timeframe, db)
     # Fetch current price
     current_price = await get_current_price(symbol)
     if current_price is None:
@@ -55,7 +55,7 @@ async def current_signal(
     stop_price = current_price * (0.99 if direction == "BUY" else 1.01)
     target_price = current_price * (1.01 if direction == "BUY" else 0.99)
     risk_reward = 1.0 if stop_price == 0 else abs(target_price - current_price) / abs(current_price - stop_price)
-    position_size = 1  # placeholder
+    position_size = context.get("position_size", 1)
     timestamp = datetime.datetime.utcnow()
     # Persist the signal
     signal_row = SignalModel(
@@ -73,7 +73,6 @@ async def current_signal(
     )
     db.add(signal_row)
     db.commit()
-    # Prepare response
     # Build the API response.  The ``signal`` field maps to the internal
     # ``direction``.  Do not expose the raw ``direction`` property to the
     # client.
